@@ -11,32 +11,44 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * $URL$
- * $Id$
  */
 
-#if defined(UNIX) && !defined(BADA)
-#include "backends/fs/posix/posix-fs-factory.h"
-#include "backends/fs/posix/posix-fs.cpp"
+#ifndef BADA_APPLICATION_H
+#define BADA_APPLICATION_H
 
-AbstractFSNode *POSIXFilesystemFactory::makeRootFileNode() const {
-	return new POSIXFilesystemNode("/");
-}
+#include <FBase.h>
+#include <FApp.h>
+#include <FGraphics.h>
+#include <FUi.h>
+#include <FSystem.h>
 
-AbstractFSNode *POSIXFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	char buf[MAXPATHLEN];
-	return getcwd(buf, MAXPATHLEN) ? new POSIXFilesystemNode(buf) : NULL;
-}
+#include "backends/platform/bada/system.h"
 
-AbstractFSNode *POSIXFilesystemFactory::makeFileNodePath(const Common::String &path) const {
-	assert(!path.empty());
-	return new POSIXFilesystemNode(path);
-}
+class BadaScummVM : public Osp::App::Application {
+public:
+	BadaScummVM();
+	~BadaScummVM();
+
+	static Osp::App::Application *createInstance(void);
+
+	bool OnAppInitializing(Osp::App::AppRegistry &appRegistry);
+	bool OnAppTerminating(Osp::App::AppRegistry &appRegistry, bool forcedTermination = false);
+	void OnForeground(void);
+	void OnBackground(void);
+	void OnLowMemory(void);
+	void OnBatteryLevelChanged(Osp::System::BatteryLevel batteryLevel);
+	void OnUserEventReceivedN(RequestId requestId, Osp::Base::Collection::IList *pArgs);
+
+private:
+	void pauseGame(bool pause);
+	BadaAppForm *_appForm;
+};
+
 #endif

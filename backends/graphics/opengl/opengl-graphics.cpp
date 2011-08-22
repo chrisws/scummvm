@@ -1383,9 +1383,13 @@ const char *OpenGLGraphicsManager::getCurrentModeName() {
 }
 
 #ifdef USE_OSD
+const Graphics::Font *OpenGLGraphicsManager::getFontOSD() {
+  return FontMan.getFontByUsage(Graphics::FontManager::kOSDFont);
+}
+
 void OpenGLGraphicsManager::updateOSD() {
 	// The font we are going to use:
-	const Graphics::Font *font = FontMan.getFontByUsage(Graphics::FontManager::kOSDFont);
+	const Graphics::Font *font = getFontOSD();
 
 	if (_osdSurface.w != _osdTexture->getWidth() || _osdSurface.h != _osdTexture->getHeight())
 		_osdSurface.create(_osdTexture->getWidth(), _osdTexture->getHeight(), 2);

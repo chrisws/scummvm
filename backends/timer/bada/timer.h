@@ -11,32 +11,51 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * $URL$
- * $Id$
  */
 
-#if defined(UNIX) && !defined(BADA)
-#include "backends/fs/posix/posix-fs-factory.h"
-#include "backends/fs/posix/posix-fs.cpp"
+#ifndef BADA_TIMER_H
+#define BADA_TIMER_H
 
-AbstractFSNode *POSIXFilesystemFactory::makeRootFileNode() const {
-	return new POSIXFilesystemNode("/");
-}
+#include <FBase.h>
 
-AbstractFSNode *POSIXFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	char buf[MAXPATHLEN];
-	return getcwd(buf, MAXPATHLEN) ? new POSIXFilesystemNode(buf) : NULL;
-}
+#include "common/timer.h"
+#include "common/list.h"
 
-AbstractFSNode *POSIXFilesystemFactory::makeFileNodePath(const Common::String &path) const {
-	assert(!path.empty());
-	return new POSIXFilesystemNode(path);
-}
+using namespace Osp::Base::Runtime;
+
+struct TimerSlot: public ITimerEventListener, public Thread {
+	TimerSlot(Common::TimerManager::TimerProc callback,
+						uint32 interval,
+						void *refCon);
+	~TimerSlot();
+
+	bool OnStart(void);
+	void OnStop(void);
+	void OnTimerExpired(Timer &timer);
+
+	Timer *_timer;
+	Common::TimerManager::TimerProc _callback;
+	uint32 _interval;	// in microseconds
+	void *_refCon;
+};
+
+class BadaTimerManager : public Common::TimerManager {
+public:
+	BadaTimerManager();
+	~BadaTimerManager();
+
+	bool installTimerProc(TimerProc proc, int32 interval, void *refCon);
+	void removeTimerProc(TimerProc proc);
+
+private:
+	Common::List<TimerSlot> _timers;
+};
+
 #endif

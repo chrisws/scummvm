@@ -57,8 +57,10 @@ void Surface::create(uint16 width, uint16 height, uint8 bytesPP) {
 	bytesPerPixel = bytesPP;
 	pitch = w * bytesPP;
 
-	pixels = calloc(width * height, bytesPP);
-	assert(pixels);
+	if (width && height) {
+		pixels = calloc(width * height, bytesPP);
+		assert(pixels);
+	}
 }
 
 void Surface::free() {

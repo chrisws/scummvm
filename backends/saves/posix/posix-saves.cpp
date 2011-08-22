@@ -25,7 +25,7 @@
 
 #include "common/scummsys.h"
 
-#if defined(UNIX) && !defined(DISABLE_DEFAULT_SAVEFILEMANAGER)
+#if defined(UNIX) && !defined(DISABLE_DEFAULT_SAVEFILEMANAGER) && !defined(BADA)
 
 #include "backends/saves/posix/posix-saves.h"
 

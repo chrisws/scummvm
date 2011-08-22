@@ -80,6 +80,7 @@ void OSystem::fatalError() {
 }
 
 void OSystem::logMessage(LogMessageType::Type type, const char *message) {
+#if !defined(BADA)
 	FILE *output = 0;
 
 	if (type == LogMessageType::kDebug)
@@ -89,6 +90,7 @@ void OSystem::logMessage(LogMessageType::Type type, const char *message) {
 
 	fputs(message, output);
 	fflush(output);
+#endif
 }
 
 Common::String OSystem::getSystemLanguage() const {

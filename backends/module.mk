@@ -76,6 +76,11 @@ MODULE_OBJS := \
 	vkeybd/virtual-keyboard-gui.o \
 	vkeybd/virtual-keyboard-parser.o
 
+ifeq ($(BACKEND),bada)
+MODULE_OBJS += \
+	timer/bada/timer.o
+endif
+
 ifeq ($(BACKEND),ds)
 MODULE_OBJS += \
 	fs/ds/ds-fs-factory.o \

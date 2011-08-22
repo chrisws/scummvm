@@ -355,6 +355,7 @@
 	#define	SCUMM_BIG_ENDIAN
 	#define	SCUMM_NEED_ALIGNMENT
 
+#elif defined(BADA)
 #else
 	#error No system type defined
 

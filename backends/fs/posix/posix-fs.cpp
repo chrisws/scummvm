@@ -22,7 +22,7 @@
  * $Id$
  */
 
-#if defined(UNIX)
+#if defined(UNIX) && !defined(BADA)
 
 #include "backends/fs/posix/posix-fs.h"
 #include "backends/fs/stdiostream.h"

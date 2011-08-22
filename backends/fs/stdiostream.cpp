@@ -23,6 +23,8 @@
  *
  */
 
+#if !defined(DISABLE_STDIO_FILESTREAM)
+
 // Disable symbol overrides so that we can use FILE, fopen etc.
 #define FORBIDDEN_SYMBOL_ALLOW_ALL
 
@@ -103,3 +105,5 @@ StdioStream *StdioStream::makeFromPath(const Common::String &path, bool writeMod
 		return new StdioStream(handle);
 	return 0;
 }
+
+#endif

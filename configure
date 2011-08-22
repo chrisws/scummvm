@@ -651,7 +651,7 @@ Usage: $0 [OPTIONS]...
 
 Configuration:
   -h, --help              display this help and exit
-  --backend=BACKEND       backend to build (android, dc, dingux, ds, gp2x, gph,
+  --backend=BACKEND       backend to build (android, bada, dc, dingux, ds, gp2x, gph,
                           iphone, linuxmoto, maemo, n64, null, openpandora, ps2,
                           psp, samsungtv, sdl, symbian, webos, wii, wince) [sdl]
 
@@ -680,6 +680,7 @@ Fine tuning of the installation directories:
 Special configuration feature:
   --host=HOST             cross-compile to target HOST (arm-linux, ...)
                           special targets: android for Android
+                                           bada for Samsung BADA
                                            caanoo for Caanoo
                                            dingux for Dingux
                                            dreamcast for Sega Dreamcast
@@ -988,6 +989,16 @@ arm-riscos)
 	_host_os=riscos
 	_host_cpu=arm
 	;;
+bada)
+	_host_os=bada
+  if test "$_debug_build" = yes; then
+    _host_cpu=i686
+	  _host_alias=i686-mingw32
+  else
+    _host_cpu=arm
+	  _host_alias=arm-samsung-nucleuseabi
+	fi
+	;;
 caanoo)
 	_host_os=gph-linux
 	_host_cpu=arm
@@ -1228,6 +1239,12 @@ android)
 	fi
 	if test -z "$ANDROID_NDK"; then
 		echo "Please set ANDROID_NDK in your environment. export ANDROID_NDK=<path to Android NDK>"
+		exit 1
+	fi
+	;;
+bada)
+	if test -z "$BADA_SDK"; then
+		echo "Please set BADA_SDK in your environment. export BADA_SDK=<path to Bada SDK>"
 		exit 1
 	fi
 	;;
@@ -1559,6 +1576,16 @@ case $_host_os in
 		_unix=yes
 		_seq_midi=no
 		;;
+	bada)
+    BADA_SDK_ROOT="`cygpath -m ${BADA_SDK}`"
+    add_line_to_config_mk "BADA_SDK = $BADA_SDK"
+    add_line_to_config_mk "BADA_SDK_ROOT = $BADA_SDK_ROOT"
+
+    # assume dependencies have been installed in cygwin's /usr/local
+    CYGWIN_USR_LOCAL="`cygpath -m /usr/local`"
+		LDFLAGS="$LDFLAGS -L${CYGWIN_USR_LOCAL}/lib"
+		CXXFLAGS="$CXXFLAGS -I${CYGWIN_USR_LOCAL}/include"
+		;;
 	beos*)
 		DEFINES="$DEFINES -DSYSTEM_NOT_SUPPORTING_D_TYPE"
 		# Needs -lbind -lsocket for the timidity MIDI driver
@@ -1739,6 +1766,22 @@ if test -n "$_host"; then
 			_unix=yes
 			_need_memalign=yes
 			;;
+		bada)
+      _unix=yes
+      _backend="bada"
+      _port_mk="backends/platform/bada/bada.mk"
+      if test "$_debug_build" = yes; then
+        _arm_asm=no
+      else
+        _arm_asm=yes
+      fi
+      _taskbar=no
+      _build_scalers=no
+      _seq_midi=no
+      _mt32emu=no
+      _timidity=no
+			_vkeybd=yes
+      ;;
 		bfin*)
 			_need_memalign=yes
 			;;
@@ -2123,7 +2166,7 @@ fi
 # Enable 16bit support only for backends which support it
 #
 case $_backend in
-	android | dingux | dreamcast | gph | openpandora | psp | samsungtv | sdl | webos | wii)
+	android | bada | dingux | dreamcast | gph | openpandora | psp | samsungtv | sdl | webos | wii)
 		if test "$_16bit" = auto ; then
 			_16bit=yes
 		else
@@ -2844,6 +2887,14 @@ EOF
 	fi
 fi
 
+case $_host_os in
+	bada)
+   # components live in non-standard locations so just assume sane SDK
+   _opengl=yes
+   _opengles=yes
+  ;;
+esac
+
 if test "$_opengles" = "yes" ; then
 	echo "yes (OpenGL ES)"
 else
@@ -3055,6 +3106,34 @@ case $_backend in
 		LIBS="$LIBS -Wl,-Bdynamic -lgcc $system_libs -llog -lGLESv1_CM"
 		DEFINES="$DEFINES -DREDUCE_MEMORY_USAGE"
 		;;
+  bada)
+    # dirent.h not available. NONSTANDARD_PORT==ensure portdefs.h is included
+    DEFINES="$DEFINES -DBADA -DDISABLE_STDIO_FILESTREAM -DNONSTANDARD_PORT"
+    DEFINES="$DEFINES -DNO_STDERR_STDOUT"
+		DEFINES="$DEFINES -DDISABLE_COMMAND_LINE"
+    INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/bada '
+    INCLUDES="$INCLUDES "'-I$(BADA_SDK)/include'
+    INCLUDES="$INCLUDES "'-I$(BADA_SDK_ROOT)/Include'
+    if test "$_debug_build" = yes; then
+      # debug using with the simulator
+      CXXFLAGS="$CXXFLAGS -D_DEBUG -DSHP -DBUILD_DLL -fmessage-length=0"
+    else
+      # created a shared library for inclusion via the eclipse build
+      CXXFLAGS="$CXXFLAGS -DSHP"
+      CXXFLAGS="$CXXFLAGS -fpic"
+      CXXFLAGS="$CXXFLAGS -fshort-wchar"
+      CXXFLAGS="$CXXFLAGS -mcpu=cortex-a8"
+      CXXFLAGS="$CXXFLAGS -mfpu=vfpv3"
+      CXXFLAGS="$CXXFLAGS -mfloat-abi=hard"
+      CXXFLAGS="$CXXFLAGS -mlittle-endian"
+      CXXFLAGS="$CXXFLAGS -mthumb-interwork"
+      CXXFLAGS="$CXXFLAGS -Wno-psabi"
+		  CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+		  CXXFLAGS="$CXXFLAGS -fno-short-enums"
+    fi
+    HOSTEXEPRE=lib
+    HOSTEXEEXT=.a
+    ;;
 	dc)
 		INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/dc -isystem $(ronindir)/include'
 		LDFLAGS="$LDFLAGS -Wl,-Ttext,0x8c010000 -nostartfiles "'$(ronindir)/lib/crt0.o -L$(ronindir)/lib'
@@ -3180,7 +3259,7 @@ if test "$have_gcc" = yes ; then
 		case $_host_os in
 		# newlib-based system include files suppress non-C89 function
 		# declarations under __STRICT_ANSI__
-		amigaos* | android | dreamcast | ds | gamecube | mingw* | n64 | psp | ps2 | wii | wince )
+		amigaos* | android | bada | dreamcast | ds | gamecube | mingw* | n64 | psp | ps2 | wii | wince )
 			CXXFLAGS="$CXXFLAGS -W -Wno-unused-parameter"
 			;;
 		*)
@@ -3203,7 +3282,7 @@ fi;
 
 # Some platforms use certain GNU extensions in header files
 case $_host_os in
-android | gamecube | psp | wii)
+android | bada | gamecube | psp | wii)
 	;;
 *)
 	# ICC does not support pedantic

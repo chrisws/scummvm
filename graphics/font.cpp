@@ -77,7 +77,8 @@ void drawCharIntern(byte *ptr, uint pitch, const bitmap_t *src, int h, int minX,
 void NewFont::drawChar(Surface *dst, byte chr, const int tx, const int ty, const uint32 color) const {
 	assert(dst != 0);
 
-	assert(desc.bits != 0 && desc.maxwidth <= 16);
+	// asserting _desc.maxwidth <= 50: let the theme designer decide what looks best
+	assert(desc.bits != 0 && desc.maxwidth <= 50);
 	assert(dst->bytesPerPixel == 1 || dst->bytesPerPixel == 2);
 
 	// If this character is not included in the font, use the default char.

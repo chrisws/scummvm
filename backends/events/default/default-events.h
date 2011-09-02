@@ -38,8 +38,18 @@ class VirtualKeyboard;
 #endif
 }
 
+class EventQueueObserver : public Common::EventObserver {
+public:
+	Common::Queue<Common::Event> _eventQueue;
 
-class DefaultEventManager : public Common::EventManager, Common::EventObserver {
+	bool notifyEvent(const Common::Event &ev) {
+		assert(this);
+		_eventQueue.push(ev);
+		return true;
+	}
+};
+
+class DefaultEventManager : public Common::EventManager {
 #ifdef ENABLE_VKEYBD
 	Common::VirtualKeyboard *_vk;
 #endif
@@ -50,12 +60,7 @@ class DefaultEventManager : public Common::EventManager, Common::EventObserver {
 #endif
 
 	Common::ArtificialEventSource _artificialEventSource;
-
-	Common::Queue<Common::Event> _eventQueue;
-	bool notifyEvent(const Common::Event &ev) {
-		_eventQueue.push(ev);
-		return true;
-	}
+	EventQueueObserver _eventObserver;
 
 	Common::Point _mousePos;
 	int _buttonState;
@@ -84,12 +89,24 @@ public:
 	virtual bool pollEvent(Common::Event &event);
 	virtual void pushEvent(const Common::Event &event);
 
+#if defined(BADA)
+	// an unknown bug in the BADA 1.2 toolchain causes inline 
+	// virtual methods in this class to behave unexpectedly
+	virtual Common::Point getMousePos() const;
+	virtual int getButtonState() const;
+	virtual int getModifierState() const;
+	virtual int shouldQuit() const;
+	virtual int shouldRTL() const;
+	virtual void resetRTL();
+#else
 	virtual Common::Point getMousePos() const { return _mousePos; }
 	virtual int getButtonState() const { return _buttonState; }
 	virtual int getModifierState() const { return _modifierState; }
 	virtual int shouldQuit() const { return _shouldQuit; }
 	virtual int shouldRTL() const { return _shouldRTL; }
 	virtual void resetRTL() { _shouldRTL = false; }
+#endif
+
 #ifdef FORCE_RTL
 	virtual void resetQuit() { _shouldQuit = false; }
 #endif

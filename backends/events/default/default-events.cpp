@@ -29,6 +29,7 @@
 
 #include "common/system.h"
 #include "common/config-manager.h"
+#include "common/translation.h"
 #include "backends/events/default/default-events.h"
 #include "backends/keymapper/keymapper.h"
 #include "backends/keymapper/remap-dialog.h"
@@ -48,8 +49,7 @@ DefaultEventManager::DefaultEventManager(Common::EventSource *boss) :
 
 	_dispatcher.registerSource(boss, false);
 	_dispatcher.registerSource(&_artificialEventSource, false);
-
-	_dispatcher.registerObserver(this, kEventManPriority, false);
+	_dispatcher.registerObserver(&_eventObserver, kEventManPriority, false);
 
 	// Reset key repeat
 	_currentKeyDown.keycode = 0;
@@ -86,8 +86,8 @@ bool DefaultEventManager::pollEvent(Common::Event &event) {
 	bool result = false;
 
 	_dispatcher.dispatch();
-	if (!_eventQueue.empty()) {
-		event = _eventQueue.pop();
+	if (!_eventObserver._eventQueue.empty()) {
+		event = _eventObserver._eventQueue.pop();
 		result = true;
 	}
 
@@ -281,5 +281,31 @@ void DefaultEventManager::pushEvent(const Common::Event &event) {
 	} else
 		_artificialEventSource.addEvent(event);
 }
+
+#if defined(BADA)
+Common::Point DefaultEventManager::getMousePos() const { 
+	return _mousePos; 
+}
+
+int DefaultEventManager::getButtonState() const { 
+	return _buttonState; 
+}
+
+int DefaultEventManager::getModifierState() const { 
+	return _modifierState; 
+}
+
+int DefaultEventManager::shouldQuit() const { 
+	return _shouldQuit; 
+}
+
+int DefaultEventManager::shouldRTL() const { 
+	return _shouldRTL; 
+}
+
+void DefaultEventManager::resetRTL() { 
+	_shouldRTL = false; 
+}
+#endif
 
 #endif // !defined(DISABLE_DEFAULT_EVENTMANAGER)

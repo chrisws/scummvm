@@ -3116,7 +3116,7 @@ case $_backend in
     INCLUDES="$INCLUDES "'-I$(BADA_SDK_ROOT)/Include'
     if test "$_debug_build" = yes; then
       # debug using with the simulator
-      CXXFLAGS="$CXXFLAGS -D_DEBUG -DSHP -DBUILD_DLL -fmessage-length=0"
+      CXXFLAGS="$CXXFLAGS -UWIN32 -D_DEBUG -DSHP -DBUILD_DLL -fmessage-length=0"
     else
       # created a shared library for inclusion via the eclipse build
       CXXFLAGS="$CXXFLAGS -DSHP"

@@ -29,7 +29,6 @@
 
 #include "common/system.h"
 #include "common/config-manager.h"
-#include "common/translation.h"
 #include "backends/events/default/default-events.h"
 #include "backends/keymapper/keymapper.h"
 #include "backends/keymapper/remap-dialog.h"

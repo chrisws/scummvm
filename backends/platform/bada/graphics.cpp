@@ -194,7 +194,6 @@ void BadaGraphicsManager::loadTextures() {
 
 	// prevent image skew in some games, see:
 	// http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall
-	// note: this did not solve the pixel border problem in refreshGameScreen()
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 

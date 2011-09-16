@@ -438,6 +438,7 @@ void BadaAppForm::OnKeyPressed(const Control &source, KeyCode keyCode) {
 			break;
 
 		case GameMenu:
+			_buttonState = LeftButton;
 			pushKey(Common::KEYCODE_F5);
 			break;
 

@@ -22,6 +22,8 @@
  * $Id$
  */
 
+#include "common/events.h"
+#include "common/system.h"
 #include "gui/widgets/edittext.h"
 #include "gui/gui-manager.h"
 
@@ -77,8 +79,15 @@ void EditTextWidget::handleMouseDown(int x, int y, int button, int clickCount) {
 	}
 	if (setCaretPos(i))
 		draw();
-}
 
+#ifdef ENABLE_VKEYBD
+	// display the virtual keypad to allow text entry
+	Common::Event eventVKB;
+	eventVKB.type = Common::EVENT_KEYDOWN;
+	eventVKB.kbd.keycode = Common::KEYCODE_F7;
+	g_system->getEventManager()->pushEvent(eventVKB);
+#endif
+}
 
 void EditTextWidget::drawWidget() {
 	g_gui.theme()->drawWidgetBackground(Common::Rect(_x, _y, _x+_w, _y+_h), 0, ThemeEngine::kWidgetBackgroundEditText);

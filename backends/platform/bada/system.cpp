@@ -151,17 +151,17 @@ OSystem::MutexRef BadaMutexManager::createMutex() {
 }
 
 void BadaMutexManager::lockMutex(OSystem::MutexRef mutex) {
-	Mutex *m = (Mutex*)mutex;
+	Mutex *m = (Mutex *)mutex;
 	m->Acquire();
 }
 
 void BadaMutexManager::unlockMutex(OSystem::MutexRef mutex) {
-	Mutex *m = (Mutex*)mutex;
+	Mutex *m = (Mutex *)mutex;
 	m->Release();
 }
 
 void BadaMutexManager::deleteMutex(OSystem::MutexRef mutex) {
-	Mutex *m = (Mutex*)mutex;
+	Mutex *m = (Mutex *)mutex;
 
 	for (int i = 0; i < MUTEX_BUFFER_SIZE; i++) {
 		if (buffer[i] == m) {
@@ -244,7 +244,7 @@ result BadaSystem::initModules() {
 		return E_OUT_OF_MEMORY;
 	}
 
-	_graphicsManager = (GraphicsManager*) new BadaGraphicsManager(_appForm);
+	_graphicsManager = (GraphicsManager *)new BadaGraphicsManager(_appForm);
 	if (!_graphicsManager) {
 		return E_OUT_OF_MEMORY;
 	}
@@ -265,7 +265,7 @@ result BadaSystem::initModules() {
 		return E_OUT_OF_MEMORY;
 	}
 
-	_audiocdManager = (AudioCDManager*) new DefaultAudioCDManager();
+	_audiocdManager = (AudioCDManager *)new DefaultAudioCDManager();
 	if (!_audiocdManager) {
 		return E_OUT_OF_MEMORY;
 	}

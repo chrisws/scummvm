@@ -1454,9 +1454,9 @@ uint8 *Wiz::drawWizImage(int resNum, int state, int maskNum, int maskState, int 
 
 	uint8 *wizh = _vm->findWrappedBlock(MKTAG('W','I','Z','H'), dataPtr, state, 0);
 	assert(wizh);
-	uint32 comp   = READ_LE_UINT32(wizh + 0x0);
-	uint32 width  = READ_LE_UINT32(wizh + 0x4);
-	uint32 height = READ_LE_UINT32(wizh + 0x8);
+	uint32 comp   = !(wizh + 0x0) ? 0 : READ_LE_UINT32(wizh + 0x0);
+	uint32 width  = !(wizh + 0x4) ? 0 : READ_LE_UINT32(wizh + 0x4);
+	uint32 height = !(wizh + 0x8) ? 0 : READ_LE_UINT32(wizh + 0x8);
 	debug(3, "wiz_header.comp = %d wiz_header.w = %d wiz_header.h = %d", comp, width, height);
 
 	uint8 *wizd = _vm->findWrappedBlock(MKTAG('W','I','Z','D'), dataPtr, state, 0);

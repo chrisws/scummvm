@@ -345,7 +345,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList,
 
 		// open directory
 		if (IsFailed(pDir->Construct(_unicodePath))) {
-			AppLog("Failed to open directory");
+			AppLog("Failed to open directory: %S", _unicodePath.GetPointer());
 		} else {
 			// read all directory entries
 			pDirEnum = pDir->ReadN();

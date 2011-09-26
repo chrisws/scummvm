@@ -288,6 +288,9 @@ void BadaSystem::initBackend() {
 	// use the mobile device theme
 	ConfMan.set("gui_theme", "/Res/scummmobile");
 
+	// unuset any themepath since this can slow startup
+	ConfMan.set("themepath", null);
+
 	// allow bada virtual keypad pack to be found
 	ConfMan.set("vkeybdpath", "/Res/vkeybd_bada");
 	ConfMan.set("vkeybd_pack_name", "vkeybd_bada");
@@ -445,8 +448,12 @@ void BadaSystem::closeGraphics() {
 }
 
 void BadaSystem::setMute(bool on) {
+	// only change mute after eventManager init() has completed
 	if (_audioThread) {
-		_audioThread->setMute(on);
+		BadaGraphicsManager *graphics = getGraphics();
+		if (graphics && graphics->isReady()) {
+			_audioThread->setMute(on);
+		}
 	}
 }
 

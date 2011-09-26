@@ -74,7 +74,7 @@ bool AudioThread::isSilentMode() {
 }
 
 void AudioThread::setMute(bool on) {
-	if (_audioOut) {
+	if (_audioOut && _timer) {
 		_muted = on;
 		if (on) {
 			_timer->Cancel();

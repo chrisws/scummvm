@@ -306,7 +306,7 @@ void BadaSystem::initBackend() {
 	}
 
 	ConfMan.registerDefault("fullscreen", true);
-	ConfMan.registerDefault("aspect_ratio", true);
+	ConfMan.registerDefault("aspect_ratio", false);
 	ConfMan.setBool("confirm_exit", false);
 
 	Osp::System::SystemTime::GetTicks(_epoch);
@@ -319,7 +319,7 @@ void BadaSystem::initBackend() {
 
 	// replace kBigGUIFont using the large font from the scummmobile theme
 	Common::File fontFile;
-	Common::String fileName = "/Res/scummmobile/helvB14-ASCII.fcc";
+	Common::String fileName = "/Res/scummmobile/helvB14-iso-8859-1.fcc";
 	BadaFilesystemNode file(fileName);
 	if (file.exists()) {
 		Common::SeekableReadStream *stream = file.createReadStream();

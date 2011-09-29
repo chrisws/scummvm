@@ -231,8 +231,16 @@ bool TranslationManager::openTranslationsFile(File& inFile) {
 		return true;
 
 	// Then look in the Themepath if we can find the file.
-	if (ConfMan.hasKey("themepath"))
-		return openTranslationsFile(FSNode(ConfMan.get("themepath")), inFile);
+	if (ConfMan.hasKey("themepath") &&
+			openTranslationsFile(FSNode(ConfMan.get("themepath")), inFile)) {
+		return true;
+	}
+
+	// Then look in the extrapath if we can find the file.
+	if (ConfMan.hasKey("extrapath") &&
+			openTranslationsFile(FSNode(ConfMan.get("extrapath")), inFile)) {
+		return true;
+	}
 
 	return false;
 }

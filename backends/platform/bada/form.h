@@ -95,6 +95,8 @@ private:
 	void setShortcut();
 	void setVolume(bool up, bool minMax);
 	void showKeypad();
+	void showLevel(int level);
+	void invokeShortcut();
 
 	// event handling
 	Osp::Base::Runtime::Thread *_gameThread;

@@ -474,6 +474,14 @@ int BadaSystem::setVolume(bool up, bool minMax) {
 	return level;
 }
 
+int BadaSystem::getLevel() {
+	int level = 0;
+	if (_audioThread) {
+		level = _audioThread->getLevel();
+	}
+	return level;
+}
+
 //
 // create the ScummVM system
 //
@@ -511,4 +519,15 @@ void systemError(const char *message) {
 		BadaSystem *system = (BadaSystem *)g_system;
 		system->exitSystem();
 	}
+}
+
+//
+// wrapper to support malloc(0) returning non null
+//
+extern "C" void *xmalloc(size_t size) {
+	void *result = malloc(size);
+	if (!result && !size) {
+		result = malloc(1);
+	}
+	return result;
 }

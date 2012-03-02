@@ -52,6 +52,7 @@ public:
 	bool isSilentMode();
 	void setMute(bool on);
 	int setVolume(bool up, bool minMax);
+	int getLevel();
 
 	bool OnStart(void);
 	void OnStop(void);

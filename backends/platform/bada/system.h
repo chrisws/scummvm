@@ -70,6 +70,7 @@ public:
 	void destroyBackend();
 	void setMute(bool on);
 	int setVolume(bool up, bool minMax);
+	int getLevel();
 	void exitSystem();
 	bool isClosing() { return _appForm->isClosing(); }
 

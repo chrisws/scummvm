@@ -99,11 +99,9 @@ int AudioThread::setVolume(bool up, bool minMax) {
 				if (volume == levels[i]) {
 					level = i;
 					if (up) {
-						if (i + 1 < numLevels) {
-							level = i + 1;
-						}
-					} else if (i > 0) {
-						level = i - 1;
+						level = (i + 1 < numLevels) ? i + 1 : 0;
+					} else {
+						level = (i > 0) ? i - 1 : numLevels - 1;
 					}
 				}
 			}
@@ -121,6 +119,21 @@ int AudioThread::setVolume(bool up, bool minMax) {
 		AppRegistry *registry = Application::GetInstance()->GetAppRegistry();
 		if (registry) {
 			registry->Set(CONFIG_KEY, volume);
+		}
+	}
+	return level;
+}
+
+int AudioThread::getLevel() {
+	int level = 0;
+	int numLevels = sizeof(levels) / sizeof(levels[0]);
+
+	if (_audioOut) {
+		int volume = _audioOut->GetVolume();
+		for (int i = 0; i < numLevels && level == 0; i++) {
+			if (volume == levels[i]) {
+				level = i;
+			}
 		}
 	}
 	return level;

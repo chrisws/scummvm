@@ -302,12 +302,39 @@ void BadaAppForm::setShortcut() {
 		_shortcut = kShowKeypad;
 		break;
 
-	case kSetVolume:
-		// fallthru
-
 	case kShowKeypad:
+		showLevel(((BadaSystem *)g_system)->getLevel());
+		_shortcut = kSetVolume;
+		break;
+
+	case kSetVolume:
 		g_system->displayMessageOnOSD(_("Control Mouse"));
 		_shortcut = kControlMouse;
+		break;
+	}
+}
+
+void BadaAppForm::invokeShortcut() {
+	switch (_shortcut) {
+	case kControlMouse:
+		setButtonShortcut();
+		break;
+		
+	case kEscapeKey:
+		pushKey(Common::KEYCODE_ESCAPE);
+		break;
+		
+	case kGameMenu:
+		_buttonState = kLeftButton;
+		pushKey(Common::KEYCODE_F5);
+		break;
+		
+	case kShowKeypad:
+		showKeypad();
+		break;
+		
+	case kSetVolume:
+		setVolume(true, false);
 		break;
 	}
 }
@@ -315,16 +342,20 @@ void BadaAppForm::setShortcut() {
 void BadaAppForm::setVolume(bool up, bool minMax) {
 	int level = ((BadaSystem *)g_system)->setVolume(up, minMax);
 	if (level != -1) {
-		char message[32];
-		char ind[LEVEL_RANGE]; // 1..5 (0=off)
-		int j = LEVEL_RANGE - 1; // 0..4
-		for (int i = 1; i <= LEVEL_RANGE; i++) {
-			ind[j--] = level >= i ? '|' : ' ';
-		}
-		snprintf(message, sizeof(message), "Volume: [ %c%c%c%c%c ]",
-						 ind[0], ind[1], ind[2], ind[3], ind[4]);
-		g_system->displayMessageOnOSD(message);
+		showLevel(level);
 	}
+}
+
+void BadaAppForm::showLevel(int level) {
+	char message[32];
+	char ind[LEVEL_RANGE]; // 1..5 (0=off)
+	int j = LEVEL_RANGE - 1; // 0..4
+	for (int i = 1; i <= LEVEL_RANGE; i++) {
+		ind[j--] = level >= i ? '|' : ' ';
+	}
+	snprintf(message, sizeof(message), "Volume: [ %c%c%c%c%c ]",
+					 ind[0], ind[1], ind[2], ind[3], ind[4]);
+	g_system->displayMessageOnOSD(message);
 }
 
 void BadaAppForm::showKeypad() {
@@ -397,18 +428,15 @@ void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 	logEntered();
 	switch (keyCode) {
 	case KEY_SIDE_UP:
+		((Control &)source).ConsumeInputEvent();
 		_shortcut = kSetVolume;
 		setVolume(true, true);
 		return;
 
 	case KEY_SIDE_DOWN:
+		((Control &)source).ConsumeInputEvent();
 		_shortcut = kSetVolume;
 		setVolume(false, true);
-		return;
-
-	case KEY_CAMERA:
-		_shortcut = kShowKeypad;
-		showKeypad();
 		return;
 
 	default:
@@ -419,40 +447,17 @@ void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 void BadaAppForm::OnKeyPressed(const Control &source, KeyCode keyCode) {
 	switch (keyCode) {
 	case KEY_SIDE_UP:
-		if (_shortcut != kSetVolume) {
-			_shortcut = kSetVolume;
-		} else {
-			setVolume(true, false);
-		}
+		((Control &)source).ConsumeInputEvent();
+		setShortcut();
 		return;
 
 	case KEY_SIDE_DOWN:
-		switch (_shortcut) {
-		case kControlMouse:
-			setButtonShortcut();
-			break;
-
-		case kEscapeKey:
-			pushKey(Common::KEYCODE_ESCAPE);
-			break;
-
-		case kGameMenu:
-			_buttonState = kLeftButton;
-			pushKey(Common::KEYCODE_F5);
-			break;
-
-		case kShowKeypad:
-			showKeypad();
-			break;
-
-		default:
-			setVolume(false, false);
-			break;
-		}
+		((Control &)source).ConsumeInputEvent();
+		invokeShortcut();
 		break;
 
 	case KEY_CAMERA:
-		setShortcut();
+		showKeypad();
 		break;
 
 	default:

@@ -97,12 +97,7 @@ int AudioThread::setVolume(bool up, bool minMax) {
 			// adjust volume to be one of the preset values
 			for (int i = 0; i < numLevels && level == -1; i++) {
 				if (volume == levels[i]) {
-					level = i;
-					if (up) {
-						level = (i + 1 < numLevels) ? i + 1 : 0;
-					} else {
-						level = (i > 0) ? i - 1 : numLevels - 1;
-					}
+					level = (i + 1) % numLevels;
 				}
 			}
 

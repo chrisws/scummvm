@@ -510,10 +510,15 @@ BadaAppForm *systemStart(Osp::App::Application *app) {
 void systemError(const char *message) {
 	AppLog("Fatal system error: %s", message);
 
-	ArrayList *args = new ArrayList();
-	args->Construct();
-	args->Add(*(new String(message)));
-	Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT_ERR, args);
+	if (strspn(message, "Config file buggy:") > 0) {
+		Osp::Io::File::Remove(DEFAULT_CONFIG_FILE);
+		Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT_ERR_CONFIG, NULL);
+	} else {
+		ArrayList *args = new ArrayList();
+		args->Construct();
+		args->Add(*(new String(message)));
+		Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT_ERR, args);
+	}
 
 	if (g_system) {
 		BadaSystem *system = (BadaSystem *)g_system;

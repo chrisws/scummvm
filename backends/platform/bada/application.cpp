@@ -59,6 +59,9 @@ bool BadaScummVM::OnAppTerminating(AppRegistry &appRegistry,
 
 void BadaScummVM::OnUserEventReceivedN(RequestId requestId,
 																			 Osp::Base::Collection::IList *args) {
+  MessageBox messageBox;
+  int modalResult;
+
 	logEntered();
 
 	if (requestId == USER_MESSAGE_EXIT) {
@@ -74,12 +77,17 @@ void BadaScummVM::OnUserEventReceivedN(RequestId requestId,
 			message = new String("Unknown error");
 		}
 
-		MessageBox messageBox;
 		messageBox.Construct(L"Oops...", *message, MSGBOX_STYLE_OK);
-		int modalResult;
 		messageBox.ShowAndWait(modalResult);
 		Terminate();
-	}
+  } else if (requestId == USER_MESSAGE_EXIT_ERR_CONFIG) {
+		// the config file was corrupted
+		messageBox.Construct(L"Config file corrupted",
+												 L"Settings have been reverted, please restart.",
+												 MSGBOX_STYLE_OK);
+		messageBox.ShowAndWait(modalResult);
+		Terminate();
+  }
 }
 
 void BadaScummVM::OnForeground(void) {

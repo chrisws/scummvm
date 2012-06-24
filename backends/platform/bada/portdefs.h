@@ -54,8 +54,8 @@ C_LINKAGE_BEGIN
 // overcome use of fprintf since bada/newlib (1.2) does not
 // support stderr/stdout (undefined reference to `_impure_ptr').
 
-void stderr_fprintf(void*, const char *format, ...);
-void stderr_vfprintf(void*, const char *format, va_list ap);
+void stderr_fprintf(void *, const char *format, ...);
+void stderr_vfprintf(void *, const char *format, va_list ap);
 void *xmalloc(size_t size);
 
 #undef fprintf

@@ -92,6 +92,7 @@ private:
 								 const Osp::Graphics::Point &currentPosition);
 	void terminate();
 	void setButtonShortcut();
+	void setMessage(const char *message);
 	void setShortcut();
 	void setVolume(bool up, bool minMax);
 	void showKeypad();
@@ -99,6 +100,7 @@ private:
 	void invokeShortcut();
 
 	// event handling
+	const char *_osdMessage;
 	Osp::Base::Runtime::Thread *_gameThread;
 	Osp::Base::Runtime::Mutex *_eventQueueLock;
 	Common::Queue<Common::Event> _eventQueue;

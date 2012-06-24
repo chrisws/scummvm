@@ -48,6 +48,7 @@ using namespace Osp::Ui::Controls;
 // BadaAppForm
 //
 BadaAppForm::BadaAppForm() :
+  _osdMessage(NULL),
 	_gameThread(0),
 	_state(kInitState),
 	_buttonState(kLeftButton),
@@ -175,15 +176,6 @@ result BadaAppForm::OnInitializing(void) {
 
 result BadaAppForm::OnDraw(void) {
 	logEntered();
-
-	if (g_system) {
-		BadaSystem *system = (BadaSystem *)g_system;
-		BadaGraphicsManager *graphics = system->getGraphics();
-		if (graphics && graphics->isReady()) {
-			g_system->updateScreen();
-		}
-	}
-
 	return E_SUCCESS;
 }
 
@@ -194,6 +186,14 @@ bool BadaAppForm::pollEvent(Common::Event &event) {
 	if (!_eventQueue.empty()) {
 		event = _eventQueue.pop();
 		result = true;
+	}
+	if (_osdMessage) {
+		BadaSystem *system = (BadaSystem *)g_system;
+		BadaGraphicsManager *graphics = system->getGraphics();
+		if (graphics) {
+			graphics->displayMessageOnOSD(_osdMessage);
+			_osdMessage = NULL;
+		}
 	}
 	_eventQueueLock->Release();
 
@@ -266,39 +266,45 @@ Object *BadaAppForm::Run(void) {
 void BadaAppForm::setButtonShortcut() {
 	switch (_buttonState) {
 	case kLeftButton:
-		g_system->displayMessageOnOSD(_("Right Click Once"));
+		setMessage(_("Right Click Once"));
 		_buttonState = kRightButtonOnce;
 		break;
 	case kRightButtonOnce:
-		g_system->displayMessageOnOSD(_("Right Click"));
+		setMessage(_("Right Click"));
 		_buttonState = kRightButton;
 		break;
 	case kRightButton:
-		g_system->displayMessageOnOSD(_("Move Only"));
+		setMessage(_("Move Only"));
 		_buttonState = kMoveOnly;
 		break;
 	case kMoveOnly:
-		g_system->displayMessageOnOSD(_("Left Click"));
+		setMessage(_("Left Click"));
 		_buttonState = kLeftButton;
 		break;
 	}
+}
+
+void BadaAppForm::setMessage(const char *message) {
+	_eventQueueLock->Acquire();
+	_osdMessage = message;
+	_eventQueueLock->Release();
 }
 
 void BadaAppForm::setShortcut() {
 	// cycle to the next shortcut
 	switch (_shortcut) {
 	case kControlMouse:
-		g_system->displayMessageOnOSD(_("Escape Key"));
+		setMessage(_("Escape Key"));
 		_shortcut = kEscapeKey;
 		break;
 
 	case kEscapeKey:
-		g_system->displayMessageOnOSD(_("Game Menu"));
+		setMessage(_("Game Menu"));
 		_shortcut = kGameMenu;
 		break;
 
 	case kGameMenu:
-		g_system->displayMessageOnOSD(_("Show Keypad"));
+		setMessage(_("Show Keypad"));
 		_shortcut = kShowKeypad;
 		break;
 
@@ -308,7 +314,7 @@ void BadaAppForm::setShortcut() {
 		break;
 
 	case kSetVolume:
-		g_system->displayMessageOnOSD(_("Control Mouse"));
+		setMessage(_("Control Mouse"));
 		_shortcut = kControlMouse;
 		break;
 	}
@@ -347,15 +353,16 @@ void BadaAppForm::setVolume(bool up, bool minMax) {
 }
 
 void BadaAppForm::showLevel(int level) {
-	char message[32];
+	static char levelMessage[32];
 	char ind[LEVEL_RANGE]; // 1..5 (0=off)
 	int j = LEVEL_RANGE - 1; // 0..4
 	for (int i = 1; i <= LEVEL_RANGE; i++) {
 		ind[j--] = level >= i ? '|' : ' ';
 	}
-	snprintf(message, sizeof(message), "Volume: [ %c%c%c%c%c ]",
+	snprintf(levelMessage, sizeof(levelMessage), 
+					 "Volume: [ %c%c%c%c%c ]",
 					 ind[0], ind[1], ind[2], ind[3], ind[4]);
-	g_system->displayMessageOnOSD(message);
+	setMessage(levelMessage);
 }
 
 void BadaAppForm::showKeypad() {
@@ -428,13 +435,11 @@ void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 	logEntered();
 	switch (keyCode) {
 	case KEY_SIDE_UP:
-		((Control &)source).ConsumeInputEvent();
 		_shortcut = kSetVolume;
 		setVolume(true, true);
 		return;
 
 	case KEY_SIDE_DOWN:
-		((Control &)source).ConsumeInputEvent();
 		_shortcut = kSetVolume;
 		setVolume(false, true);
 		return;
@@ -447,12 +452,10 @@ void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 void BadaAppForm::OnKeyPressed(const Control &source, KeyCode keyCode) {
 	switch (keyCode) {
 	case KEY_SIDE_UP:
-		((Control &)source).ConsumeInputEvent();
 		setShortcut();
 		return;
 
 	case KEY_SIDE_DOWN:
-		((Control &)source).ConsumeInputEvent();
 		invokeShortcut();
 		break;
 

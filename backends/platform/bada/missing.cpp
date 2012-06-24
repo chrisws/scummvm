@@ -48,7 +48,7 @@ void __assert_func(const char *file, int line,
 	systemError(buffer);
 }
 
-void stderr_fprintf(void*, const char *format, ...) {
+void stderr_fprintf(void *, const char *format, ...) {
 	va_list ap;
 	char buffer[BUF_SIZE];
 
@@ -59,7 +59,7 @@ void stderr_fprintf(void*, const char *format, ...) {
 	AppLog(buffer);
 }
 
-void stderr_vfprintf(void*, const char *format, va_list ap) {
+void stderr_vfprintf(void *, const char *format, va_list ap) {
 	char buffer[BUF_SIZE];
 	vsnprintf(buffer, sizeof(buffer), format, ap);
 	AppLog(buffer);

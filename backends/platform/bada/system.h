@@ -54,12 +54,12 @@ void systemError(const char *message);
 
 #define USER_MESSAGE_EXIT			1000
 #define USER_MESSAGE_EXIT_ERR 1001
+#define USER_MESSAGE_EXIT_ERR_CONFIG 1002
 
 //
 // BadaSystem
 //
-class BadaSystem : public ModularBackend,
-									 Common::EventSource {
+class BadaSystem : public ModularBackend, Common::EventSource {
 public:
 	BadaSystem(BadaAppForm *appForm);
 	~BadaSystem();

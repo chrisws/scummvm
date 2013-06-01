@@ -82,7 +82,7 @@ void EditTextWidget::handleMouseDown(int x, int y, int button, int clickCount) {
 	if (setCaretPos(i))
 		draw();
 
-#ifdef BADA
+#ifdef TIZEN
 	// display the virtual keypad to allow text entry
 	Common::Event eventVKB;
 	eventVKB.type = Common::EVENT_KEYDOWN;

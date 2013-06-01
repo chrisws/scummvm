@@ -39,11 +39,11 @@
 //
 // BadaAppForm
 //
-class BadaAppForm : public Osp::Ui::Controls::Form,
-										public Osp::Ui::IOrientationEventListener,
-										public Osp::Ui::ITouchEventListener,
-										public Osp::Ui::IKeyEventListener,
-										public Osp::Base::Runtime::IRunnable {
+class BadaAppForm : public Tizen::Ui::Controls::Form,
+										public Tizen::Ui::IOrientationEventListener,
+										public Tizen::Ui::ITouchEventListener,
+										public Tizen::Ui::IKeyEventListener,
+										public Tizen::Base::Runtime::IRunnable {
 public:
 	BadaAppForm();
 	~BadaAppForm();
@@ -58,38 +58,38 @@ private:
 	Object *Run();
 	result OnInitializing(void);
 	result OnDraw(void);
-	void OnOrientationChanged(const Osp::Ui::Control &source,
-														Osp::Ui::OrientationStatus orientationStatus);
-	void OnTouchDoublePressed(const Osp::Ui::Control &source,
-														const Osp::Graphics::Point &currentPosition,
-														const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchFocusIn(const Osp::Ui::Control &source,
-											const Osp::Graphics::Point &currentPosition,
-											const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchFocusOut(const Osp::Ui::Control &source,
-											 const Osp::Graphics::Point &currentPosition,
-											 const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchLongPressed(const Osp::Ui::Control &source,
-													const Osp::Graphics::Point &currentPosition,
-													const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchMoved(const Osp::Ui::Control &source,
-										const Osp::Graphics::Point &currentPosition,
-										const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchPressed(const Osp::Ui::Control &source,
-											const Osp::Graphics::Point &currentPosition,
-											const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnTouchReleased(const Osp::Ui::Control &source,
-											 const Osp::Graphics::Point &currentPosition,
-											 const Osp::Ui::TouchEventInfo &touchInfo);
-	void OnKeyLongPressed(const Osp::Ui::Control &source,
-												Osp::Ui::KeyCode keyCode);
-	void OnKeyPressed(const Osp::Ui::Control &source,
-										Osp::Ui::KeyCode keyCode);
-	void OnKeyReleased(const Osp::Ui::Control &source,
-										 Osp::Ui::KeyCode keyCode);
+	void OnOrientationChanged(const Tizen::Ui::Control &source,
+														Tizen::Ui::OrientationStatus orientationStatus);
+	void OnTouchDoublePressed(const Tizen::Ui::Control &source,
+														const Tizen::Graphics::Point &currentPosition,
+														const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchFocusIn(const Tizen::Ui::Control &source,
+											const Tizen::Graphics::Point &currentPosition,
+											const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchFocusOut(const Tizen::Ui::Control &source,
+											 const Tizen::Graphics::Point &currentPosition,
+											 const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchLongPressed(const Tizen::Ui::Control &source,
+													const Tizen::Graphics::Point &currentPosition,
+													const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchMoved(const Tizen::Ui::Control &source,
+										const Tizen::Graphics::Point &currentPosition,
+										const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchPressed(const Tizen::Ui::Control &source,
+											const Tizen::Graphics::Point &currentPosition,
+											const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnTouchReleased(const Tizen::Ui::Control &source,
+											 const Tizen::Graphics::Point &currentPosition,
+											 const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnKeyLongPressed(const Tizen::Ui::Control &source,
+												Tizen::Ui::KeyCode keyCode);
+	void OnKeyPressed(const Tizen::Ui::Control &source,
+										Tizen::Ui::KeyCode keyCode);
+	void OnKeyReleased(const Tizen::Ui::Control &source,
+										 Tizen::Ui::KeyCode keyCode);
 
 	void pushEvent(Common::EventType type,
-								 const Osp::Graphics::Point &currentPosition);
+								 const Tizen::Graphics::Point &currentPosition);
 	void terminate();
 	void setButtonShortcut();
 	void setMessage(const char *message);
@@ -101,8 +101,8 @@ private:
 
 	// event handling
 	const char *_osdMessage;
-	Osp::Base::Runtime::Thread *_gameThread;
-	Osp::Base::Runtime::Mutex *_eventQueueLock;
+	Tizen::Base::Runtime::Thread *_gameThread;
+	Tizen::Base::Runtime::Mutex *_eventQueueLock;
 	Common::Queue<Common::Event> _eventQueue;
 	enum { kInitState, kActiveState, kClosingState, kDoneState, kErrorState } _state;
 	enum { kLeftButton, kRightButtonOnce, kRightButton, kMoveOnly } _buttonState;

@@ -26,8 +26,8 @@
 #include "backends/platform/bada/system.h"
 #include "backends/platform/bada/application.h"
 
-using namespace Osp::System;
-using namespace Osp::Ui::Controls;
+using namespace Tizen::System;
+using namespace Tizen::Ui::Controls;
 
 Application *BadaScummVM::createInstance() {
 	return new BadaScummVM();
@@ -58,7 +58,7 @@ bool BadaScummVM::OnAppTerminating(AppRegistry &appRegistry,
 }
 
 void BadaScummVM::OnUserEventReceivedN(RequestId requestId,
-																			 Osp::Base::Collection::IList *args) {
+																			 Tizen::Base::Collection::IList *args) {
   MessageBox messageBox;
   int modalResult;
 

@@ -35,9 +35,9 @@
 #include "graphics/font.h"
 #include "backends/platform/bada/form.h"
 
-using namespace Osp::Graphics;
-using namespace Osp::Graphics::Opengl;
-using namespace Osp::App;
+using namespace Tizen::Graphics;
+using namespace Tizen::Graphics::Opengl;
+using namespace Tizen::App;
 
 class BadaGraphicsManager : public OpenGLGraphicsManager {
 public:

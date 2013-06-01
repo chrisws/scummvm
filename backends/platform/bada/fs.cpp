@@ -240,7 +240,7 @@ BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode)
 //
 // converts a bada (wchar) String into a scummVM (char) string
 //
-Common::String fromString(const Osp::Base::String &in) {
+Common::String fromString(const Tizen::Base::String &in) {
 	ByteBuffer *buf = StringUtil::StringToUtf8N(in);
 	Common::String result((const char*)buf->GetPointer());
 	delete buf;
@@ -358,7 +358,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList,
 				DirEntry dirEntry = pDirEnum->GetCurrentDirEntry();
 
 				// skip 'invisible' files if necessary
-				Osp::Base::String fileName = dirEntry.GetName();
+				Tizen::Base::String fileName = dirEntry.GetName();
 
 				if (fileName[0] == '.' && !hidden) {
 					continue;

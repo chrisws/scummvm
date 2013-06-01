@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(BADA)
+#if defined(TIZEN)
 
 #include "backends/timer/bada/timer.h"
 
@@ -39,7 +39,7 @@ TimerSlot::~TimerSlot() {
 }
 
 bool TimerSlot::OnStart() {
-	_timer = new Osp::Base::Runtime::Timer();
+	_timer = new Tizen::Base::Runtime::Timer();
 	if (!_timer || IsFailed(_timer->Construct(*this))) {
 		AppLog("Failed to create timer");
 		return false;

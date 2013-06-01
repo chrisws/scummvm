@@ -69,7 +69,7 @@ AudioThread::~AudioThread() {
 bool AudioThread::isSilentMode() {
 	bool silentMode;
 	String key(L"SilentMode");
-	Osp::System::SettingInfo::GetValue(key, silentMode);
+	Tizen::System::SettingInfo::GetValue(key, silentMode);
 	return silentMode;
 }
 
@@ -137,7 +137,7 @@ int AudioThread::getLevel() {
 bool AudioThread::OnStart(void) {
 	logEntered();
 
-	_audioOut = new Osp::Media::AudioOut();
+	_audioOut = new Tizen::Media::AudioOut();
 	if (!_audioOut ||
 			IsFailed(_audioOut->Construct(*this))) {
 		AppLog("Failed to create AudioOut");
@@ -214,20 +214,20 @@ void AudioThread::OnStop(void) {
 	}
 }
 
-void AudioThread::OnAudioOutErrorOccurred(Osp::Media::AudioOut &src, result r) {
+void AudioThread::OnAudioOutErrorOccurred(Tizen::Media::AudioOut &src, result r) {
 	logEntered();
 }
 
-void AudioThread::OnAudioOutInterrupted(Osp::Media::AudioOut &src) {
+void AudioThread::OnAudioOutInterrupted(Tizen::Media::AudioOut &src) {
 	logEntered();
 }
 
-void AudioThread::OnAudioOutReleased(Osp::Media::AudioOut &src) {
+void AudioThread::OnAudioOutReleased(Tizen::Media::AudioOut &src) {
 	logEntered();
 	_audioOut->Start();
 }
 
-void AudioThread::OnAudioOutBufferEndReached(Osp::Media::AudioOut &src) {
+void AudioThread::OnAudioOutBufferEndReached(Tizen::Media::AudioOut &src) {
 	if (_ready > 0) {
 		_playing = _tail;
 		_audioOut->WriteBuffer(_audioBuffer[_tail]);

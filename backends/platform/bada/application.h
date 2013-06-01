@@ -31,20 +31,20 @@
 
 #include "backends/platform/bada/system.h"
 
-class BadaScummVM : public Osp::App::Application {
+class BadaScummVM : public Tizen::App::Application {
 public:
 	BadaScummVM();
 	~BadaScummVM();
 
-	static Osp::App::Application *createInstance(void);
+	static Tizen::App::Application *createInstance(void);
 
-	bool OnAppInitializing(Osp::App::AppRegistry &appRegistry);
-	bool OnAppTerminating(Osp::App::AppRegistry &appRegistry, bool forcedTermination = false);
+	bool OnAppInitializing(Tizen::App::AppRegistry &appRegistry);
+	bool OnAppTerminating(Tizen::App::AppRegistry &appRegistry, bool forcedTermination = false);
 	void OnForeground(void);
 	void OnBackground(void);
 	void OnLowMemory(void);
-	void OnBatteryLevelChanged(Osp::System::BatteryLevel batteryLevel);
-	void OnUserEventReceivedN(RequestId requestId, Osp::Base::Collection::IList *pArgs);
+	void OnBatteryLevelChanged(Tizen::System::BatteryLevel batteryLevel);
+	void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList *pArgs);
 
 private:
 	void pauseGame(bool pause);

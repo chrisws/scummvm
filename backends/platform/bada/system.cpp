@@ -41,11 +41,11 @@
 #include "backends/platform/bada/graphics.h"
 #include "backends/platform/bada/audio.h"
 
-using namespace Osp::Base;
-using namespace Osp::Base::Runtime;
-using namespace Osp::Locales;
-using namespace Osp::Ui::Controls;
-using namespace Osp::System;
+using namespace Tizen::Base;
+using namespace Tizen::Base::Runtime;
+using namespace Tizen::Locales;
+using namespace Tizen::Ui::Controls;
+using namespace Tizen::System;
 
 #define DEFAULT_CONFIG_FILE "/Home/scummvm.ini"
 #define RESOURCE_PATH       "/Res"
@@ -95,7 +95,7 @@ bool BadaSaveFileManager::removeSavefile(const Common::String &filename) {
 	String unicodeFileName;
 	StringUtil::Utf8ToString(file.getPath().c_str(), unicodeFileName);
 
-	switch (Osp::Io::File::Remove(unicodeFileName)) {
+	switch (Tizen::Io::File::Remove(unicodeFileName)) {
 	case E_SUCCESS:
 		return true;
 
@@ -485,7 +485,7 @@ int BadaSystem::getLevel() {
 //
 // create the ScummVM system
 //
-BadaAppForm *systemStart(Osp::App::Application *app) {
+BadaAppForm *systemStart(Tizen::App::Application *app) {
 	logEntered();
 
 	BadaAppForm *appForm = new BadaAppForm();
@@ -511,7 +511,7 @@ void systemError(const char *message) {
 	AppLog("Fatal system error: %s", message);
 
 	if (strspn(message, "Config file buggy:") > 0) {
-		Osp::Io::File::Remove(DEFAULT_CONFIG_FILE);
+		Tizen::Io::File::Remove(DEFAULT_CONFIG_FILE);
 		Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT_ERR_CONFIG, NULL);
 	} else {
 		ArrayList *args = new ArrayList();

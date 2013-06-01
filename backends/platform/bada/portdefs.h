@@ -43,6 +43,9 @@
  #define C_LINKAGE_END
 #endif
 
+// TODO - guessed value missing from osp gl headers
+#define GL_UNSIGNED_INT_8_8_8_8 0x8035
+
 C_LINKAGE_BEGIN
 
 // for libFLAC
@@ -78,10 +81,7 @@ void *xmalloc(size_t size);
 #define malloc xmalloc
 
 int printf(const char *format, ...);
-int sprintf(char *str, const char *format, ...);
 int simple_sscanf(const char *buffer, const char *format, ...);
-char *strdup(const char *s1);
-int vsprintf(char *str, const char *format, va_list ap);
 
 C_LINKAGE_END
 

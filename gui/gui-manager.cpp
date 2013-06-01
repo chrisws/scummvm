@@ -332,7 +332,7 @@ void GuiManager::runLoop() {
 					_lastMousePosition.time = _system->getMillis();
 				}
 
-#if !defined(BADA)
+#if !defined(TIZEN)
 				tooltipCheck = true;
 #endif
 				break;

@@ -28,9 +28,9 @@
 #include "backends/platform/bada/form.h"
 #include "backends/platform/bada/system.h"
 
-using namespace Osp::Base::Runtime;
-using namespace Osp::Ui;
-using namespace Osp::Ui::Controls;
+using namespace Tizen::Base::Runtime;
+using namespace Tizen::Ui;
+using namespace Tizen::Ui::Controls;
 
 // number of volume levels
 #define LEVEL_RANGE 5

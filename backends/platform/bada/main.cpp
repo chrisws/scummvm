@@ -29,8 +29,8 @@
 #include "backends/platform/bada/system.h"
 #include "backends/platform/bada/application.h"
 
-using namespace Osp::Base;
-using namespace Osp::Base::Collection;
+using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 
 C_LINKAGE_BEGIN
 
@@ -50,7 +50,7 @@ int OspMain(int argc, char *pArgv[]) {
 		pArgs->Add(*(new String(pArgv[i])));
 	}
 
-	r = Osp::App::Application::Execute(BadaScummVM::createInstance, pArgs);
+	r = Tizen::App::Application::Execute(BadaScummVM::createInstance, pArgs);
 	if (IsFailed(r)) {
 		r &= 0x0000FFFF;
 	}

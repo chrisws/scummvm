@@ -32,9 +32,9 @@
 #include "common/stream.h"
 #include "backends/fs/abstract-fs.h"
 
-using namespace Osp::Io;
-using namespace Osp::Base;
-using namespace Osp::Base::Utility;
+using namespace Tizen::Io;
+using namespace Tizen::Base;
+using namespace Tizen::Base::Utility;
 
 /**
  * Implementation of the ScummVM file system API based on BADA.

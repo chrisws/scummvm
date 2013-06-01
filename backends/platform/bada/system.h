@@ -49,7 +49,7 @@
 #define logLeaving()
 #endif
 
-BadaAppForm *systemStart(Osp::App::Application *app);
+BadaAppForm *systemStart(Tizen::App::Application *app);
 void systemError(const char *message);
 
 #define USER_MESSAGE_EXIT			1000

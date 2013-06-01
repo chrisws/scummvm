@@ -28,7 +28,7 @@
 #include "common/timer.h"
 #include "common/list.h"
 
-using namespace Osp::Base::Runtime;
+using namespace Tizen::Base::Runtime;
 
 struct TimerSlot: public ITimerEventListener, public Thread {
 	TimerSlot(Common::TimerManager::TimerProc callback,

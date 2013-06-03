@@ -51,9 +51,7 @@ AudioThread::AudioThread() :
 Audio::MixerImpl *AudioThread::Construct(OSystem *system) {
 	logEntered();
 
-	if (IsFailed(Thread::Construct(THREAD_TYPE_EVENT_DRIVEN,
-																 DEFAULT_STACK_SIZE,
-																 THREAD_PRIORITY_HIGH))) {
+	if (IsFailed(EventDrivenThread::Construct(DEFAULT_STACK_SIZE, THREAD_PRIORITY_HIGH))) {
 		AppLog("Failed to create AudioThread");
 		return NULL;
 	}

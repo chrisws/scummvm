@@ -39,11 +39,12 @@
 //
 // BadaAppForm
 //
-class BadaAppForm : public Tizen::Ui::Controls::Form,
-										public Tizen::Ui::IOrientationEventListener,
-										public Tizen::Ui::ITouchEventListener,
-										public Tizen::Ui::IKeyEventListener,
-										public Tizen::Base::Runtime::IRunnable {
+class BadaAppForm :
+	public Tizen::Ui::Controls::Form,
+	public Tizen::Ui::IOrientationEventListener,
+	public Tizen::Ui::ITouchEventListener,
+	public Tizen::Ui::IKeyEventListener,
+	public Tizen::Base::Runtime::IRunnable {
 public:
 	BadaAppForm();
 	~BadaAppForm();
@@ -59,37 +60,33 @@ private:
 	result OnInitializing(void);
 	result OnDraw(void);
 	void OnOrientationChanged(const Tizen::Ui::Control &source,
-														Tizen::Ui::OrientationStatus orientationStatus);
+			Tizen::Ui::OrientationStatus orientationStatus);
 	void OnTouchDoublePressed(const Tizen::Ui::Control &source,
-														const Tizen::Graphics::Point &currentPosition,
-														const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchFocusIn(const Tizen::Ui::Control &source,
-											const Tizen::Graphics::Point &currentPosition,
-											const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchFocusOut(const Tizen::Ui::Control &source,
-											 const Tizen::Graphics::Point &currentPosition,
-											 const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchLongPressed(const Tizen::Ui::Control &source,
-													const Tizen::Graphics::Point &currentPosition,
-													const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchMoved(const Tizen::Ui::Control &source,
-										const Tizen::Graphics::Point &currentPosition,
-										const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchPressed(const Tizen::Ui::Control &source,
-											const Tizen::Graphics::Point &currentPosition,
-											const Tizen::Ui::TouchEventInfo &touchInfo);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
 	void OnTouchReleased(const Tizen::Ui::Control &source,
-											 const Tizen::Graphics::Point &currentPosition,
-											 const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnKeyLongPressed(const Tizen::Ui::Control &source,
-												Tizen::Ui::KeyCode keyCode);
-	void OnKeyPressed(const Tizen::Ui::Control &source,
-										Tizen::Ui::KeyCode keyCode);
-	void OnKeyReleased(const Tizen::Ui::Control &source,
-										 Tizen::Ui::KeyCode keyCode);
+			const Tizen::Graphics::Point &currentPosition,
+			const Tizen::Ui::TouchEventInfo &touchInfo);
+	void OnKeyLongPressed(const Tizen::Ui::Control &source,	Tizen::Ui::KeyCode keyCode);
+	void OnKeyPressed(const Tizen::Ui::Control &source,	Tizen::Ui::KeyCode keyCode);
+	void OnKeyReleased(const Tizen::Ui::Control &source, Tizen::Ui::KeyCode keyCode);
 
-	void pushEvent(Common::EventType type,
-								 const Tizen::Graphics::Point &currentPosition);
+	void pushEvent(Common::EventType type, const Tizen::Graphics::Point &currentPosition);
 	void terminate();
 	void setButtonShortcut();
 	void setMessage(const char *message);

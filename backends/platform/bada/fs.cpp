@@ -39,9 +39,10 @@
 //
 // BadaFileStream
 //
-class BadaFileStream : public Common::SeekableReadStream,
-											 public Common::WriteStream,
-											 public Common::NonCopyable {
+class BadaFileStream :
+	public Common::SeekableReadStream,
+	public Common::WriteStream,
+	public Common::NonCopyable {
 public:
 	static BadaFileStream *makeFromPath(const String &path, bool writeMode);
 
@@ -212,7 +213,7 @@ uint32 BadaFileStream::write(const void *ptr, uint32 len) {
 }
 
 bool BadaFileStream::flush() {
-	logEntered();
+  logEntered();
 	SetLastResult(file->Flush());
 	return (E_SUCCESS == GetLastResult());
 }
@@ -256,8 +257,7 @@ BadaFilesystemNode::BadaFilesystemNode(const Common::String &nodePath) {
 	init(nodePath);
 }
 
-BadaFilesystemNode::BadaFilesystemNode(const Common::String &root,
-																			 const Common::String &nodePath) {
+BadaFilesystemNode::BadaFilesystemNode(const Common::String &root, const Common::String &nodePath) {
 	// Make sure the string contains no slashes
 	AppAssert(!nodePath.contains('/'));
 
@@ -279,10 +279,10 @@ void BadaFilesystemNode::init(const Common::String &nodePath) {
 
 	StringUtil::Utf8ToString(_path.c_str(), _unicodePath);
 	_isVirtualDir = (_path == PATH_ROOT ||
-									 _path == PATH_HOME ||
-									 _path == PATH_HOME_SHARE ||
-									 _path == PATH_HOME_SHARE2 ||
-									 _path == PATH_CARD);
+					_path == PATH_HOME ||
+					_path == PATH_HOME_SHARE ||
+					_path == PATH_HOME_SHARE2 ||
+					_path == PATH_CARD);
 	_isValid = _isVirtualDir || !IsFailed(File::GetAttributes(_unicodePath, _attr));
 }
 
@@ -301,9 +301,9 @@ bool BadaFilesystemNode::isDirectory() const {
 bool BadaFilesystemNode::isWritable() const {
 	bool result = (_isValid && !_isVirtualDir && !_attr.IsDirectory() && !_attr.IsReadOnly());
 	if (_path == PATH_HOME ||
-			_path == PATH_HOME_EXT ||
-			_path == PATH_HOME_SHARE ||
-			_path == PATH_HOME_SHARE2) {
+		_path == PATH_HOME_EXT ||
+		_path == PATH_HOME_SHARE ||
+		_path == PATH_HOME_SHARE2) {
 		result = true;
 	}
 	return result;
@@ -315,8 +315,7 @@ AbstractFSNode *BadaFilesystemNode::getChild(const Common::String &n) const {
 	return new BadaFilesystemNode(_path, n);
 }
 
-bool BadaFilesystemNode::getChildren(AbstractFSList &myList,
-																		 ListMode mode, bool hidden) const {
+bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool hidden) const {
 	AppAssert(isDirectory());
 
 	bool result = false;
@@ -393,7 +392,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList,
 }
 
 AbstractFSNode *BadaFilesystemNode::getParent() const {
-	logEntered();
+  logEntered();
 	if (_path == PATH_ROOT) {
 		return 0; // The filesystem root has no parent
 	}

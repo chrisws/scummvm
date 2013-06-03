@@ -236,7 +236,7 @@ void BadaGraphicsManager::unloadGFXMode() {
 void BadaGraphicsManager::showSplash() {
 	Canvas canvas;
 	canvas.Construct();
-	canvas.SetBackgroundColor(Color::COLOR_BLACK);
+	canvas.SetBackgroundColor(Color::GetColor(COLOR_ID_BLACK));
 	canvas.Clear();
 
 	int x = _videoMode.hardwareWidth / 3;
@@ -245,14 +245,14 @@ void BadaGraphicsManager::showSplash() {
 	Font *pFont = new Font();
 	pFont->Construct(FONT_STYLE_ITALIC | FONT_STYLE_BOLD, 55);
 	canvas.SetFont(*pFont);
-	canvas.SetForegroundColor(Color::COLOR_GREEN);
+	canvas.SetForegroundColor(Color::GetColor(COLOR_ID_GREEN));
 	canvas.DrawText(Point(x, y), L"ScummVM");
 	delete pFont;
 
 	pFont = new Font();
 	pFont->Construct(FONT_STYLE_ITALIC | FONT_STYLE_BOLD, 35);
 	canvas.SetFont(*pFont);
-	canvas.SetForegroundColor(Color::COLOR_WHITE);
+	canvas.SetForegroundColor(Color::GetColor(COLOR_ID_WHITE));
 	canvas.DrawText(Point(x + 70, y + 50), L"Loading ...");
 	delete pFont;
 

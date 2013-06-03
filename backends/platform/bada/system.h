@@ -40,10 +40,8 @@
 #include "backends/platform/bada/graphics.h"
 
 #if defined(_DEBUG)
-#define logEntered() AppLog("%s entered (%s %d)", \
-														 __FUNCTION__, __FILE__, __LINE__);
-#define logLeaving() AppLog("%s leaving (%s %d)", \
-														 __FUNCTION__, __FILE__, __LINE__);
+#define logEntered() AppLog("%s entered (%s %d)", __FUNCTION__, __FILE__, __LINE__);
+#define logLeaving() AppLog("%s leaving (%s %d)", __FUNCTION__, __FILE__, __LINE__);
 #else
 #define logEntered()
 #define logLeaving()
@@ -52,14 +50,16 @@
 BadaAppForm *systemStart(Tizen::App::Application *app);
 void systemError(const char *message);
 
-#define USER_MESSAGE_EXIT			1000
-#define USER_MESSAGE_EXIT_ERR 1001
-#define USER_MESSAGE_EXIT_ERR_CONFIG 1002
+#define USER_MESSAGE_EXIT				1000
+#define USER_MESSAGE_EXIT_ERR			1001
+#define USER_MESSAGE_EXIT_ERR_CONFIG	1002
 
 //
 // BadaSystem
 //
-class BadaSystem : public ModularBackend, Common::EventSource {
+class BadaSystem :
+	public ModularBackend,
+	Common::EventSource {
 public:
 	BadaSystem(BadaAppForm *appForm);
 	~BadaSystem();

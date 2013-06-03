@@ -30,10 +30,8 @@
 
 using namespace Tizen::Base::Runtime;
 
-struct TimerSlot: public ITimerEventListener, public Thread {
-	TimerSlot(Common::TimerManager::TimerProc callback,
-						uint32 interval,
-						void *refCon);
+struct TimerSlot: public EventDrivenThread, public ITimerEventListener {
+	TimerSlot(Common::TimerManager::TimerProc callback, uint32 interval, void *refCon);
 	~TimerSlot();
 
 	bool OnStart(void);
@@ -51,12 +49,11 @@ public:
 	BadaTimerManager();
 	~BadaTimerManager();
 
-	bool installTimerProc(TimerProc proc, int32 interval, void *refCon,
-												const Common::String &id);
+	bool installTimerProc(TimerProc proc, int32 interval, void *refCon, const Common::String &id);
 	void removeTimerProc(TimerProc proc);
 
 private:
-	Common::List<TimerSlot> _timers;
+	Common::List<TimerSlot*> _timers;
 };
 
 #endif

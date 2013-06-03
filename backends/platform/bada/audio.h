@@ -43,7 +43,7 @@ using namespace Tizen::Io;
 
 class AudioThread: public Tizen::Media::IAudioOutEventListener,
 									 public Tizen::Base::Runtime::ITimerEventListener,
-									 public Tizen::Base::Runtime::Thread {
+									 public Tizen::Base::Runtime::EventDrivenThread {
 public:
 	AudioThread(void);
 	~AudioThread(void);

@@ -27,8 +27,7 @@
 //
 // TimerSlot
 //
-TimerSlot::TimerSlot(Common::TimerManager::TimerProc callback,
-										 uint32 interval, void *refCon) :
+TimerSlot::TimerSlot(Common::TimerManager::TimerProc callback, uint32 interval, void *refCon) :
 	_timer(0),
 	_callback(callback),
 	_interval(interval),
@@ -75,18 +74,17 @@ BadaTimerManager::BadaTimerManager() {
 }
 
 BadaTimerManager::~BadaTimerManager() {
-	for (Common::List<TimerSlot>::iterator slot = _timers.begin();
-			 slot != _timers.end(); ) {
+	for (Common::List<TimerSlot*>::iterator it = _timers.begin(); it != _timers.end(); ) {
+		TimerSlot *slot = (*it);
 		slot->Stop();
-		slot = _timers.erase(slot);
+		it = _timers.erase(it);
 	}
 }
 
-bool BadaTimerManager::installTimerProc(TimerProc proc, int32 interval, void *refCon,
-																				const Common::String &id) {
+bool BadaTimerManager::installTimerProc(TimerProc proc, int32 interval, void *refCon, const Common::String &id) {
 	TimerSlot *slot = new TimerSlot(proc, interval / 1000, refCon);
 
-	if (IsFailed(slot->Construct(THREAD_TYPE_EVENT_DRIVEN))) {
+	if (IsFailed(slot->Construct())) {
 		AppLog("Failed to create timer thread");
 		delete slot;
 		return false;
@@ -98,16 +96,16 @@ bool BadaTimerManager::installTimerProc(TimerProc proc, int32 interval, void *re
 		return false;
 	}
 
-	_timers.push_back(*slot);
+	_timers.push_back(slot);
 	return true;
 }
 
 void BadaTimerManager::removeTimerProc(TimerProc proc) {
-	for (Common::List<TimerSlot>::iterator slot = _timers.begin();
-			 slot != _timers.end(); ++slot) {
+	for (Common::List<TimerSlot*>::iterator it = _timers.begin(); it != _timers.end(); ++it) {
+		TimerSlot *slot = (*it);
 		if (slot->_callback == proc) {
 			slot->Stop();
-			slot = _timers.erase(slot);
+			it = _timers.erase(it);
 		}
 	}
 }

@@ -1731,7 +1731,7 @@ if test "$have_gcc" = yes ; then
 			case $_host_os in
 			# newlib-based system include files suppress non-C89 function
 			# declarations under __STRICT_ANSI__
-			amigaos* | android | dreamcast | ds | gamecube | mingw* | n64 | psp | ps2 | ps3 | wii | wince )
+			amigaos* | android | dreamcast | ds | gamecube | mingw* | n64 | psp | ps2 | ps3 | tizen | wii | wince )
 				;;
 			*)
 				CXXFLAGS="$CXXFLAGS -ansi"
@@ -1767,7 +1767,7 @@ echo $_use_cxx11
 # However, some platforms use GNU extensions in system header files, so
 # for these we must not use -pedantic.
 case $_host_os in
-android | gamecube | psp | wii | webos)
+android | gamecube | psp | tizen | wii | webos)
 	;;
 *)
 	# ICC does not support pedantic, while GCC and clang do.
@@ -2779,7 +2779,7 @@ case $_backend in
 		DEFINES="$DEFINES -DTIZEN -DDISABLE_STDIO_FILESTREAM -DNONSTANDARD_PORT"
 		DEFINES="$DEFINES -DNO_STDERR_STDOUT"
 		DEFINES="$DEFINES -DDISABLE_COMMAND_LINE"
-		INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/bada '
+		INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/bada'
 		INCLUDES="$INCLUDES "'-I$(TIZEN_DEVICE)/usr/include'
 		INCLUDES="$INCLUDES "'-I$(TIZEN_DEVICE)/usr/include/osp'
 		if test "$_debug_build" = yes; then

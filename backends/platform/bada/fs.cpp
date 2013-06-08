@@ -27,14 +27,8 @@
 
 // internal BADA paths
 #define PATH_ROOT        "/"
-#define PATH_HOME        "/Home"
-#define PATH_HOME_SHARE  "/Home/Share"
-#define PATH_HOME_SHARE2 "/Home/Share2"
-#define PATH_HOME_X      "/Home/"
-#define PATH_HOME_EXT    "/HomeExt"
-#define PATH_MEDIA       "/Media"
-#define PATH_CARD        "/Storagecard"
-#define PATH_CARD_MEDIA  "/Storagecard/Media"
+#define PATH_HOME        "/data"
+#define PATH_HOME_X      "/data/"
 
 //
 // BadaFileStream
@@ -62,27 +56,27 @@ public:
 	uint32 read(void *dataPtr, uint32 dataSize);
 
 private:
-	byte buffer[BUFFER_SIZE];
-	uint32 bufferIndex;
-	uint32 bufferLength;
-	bool writeMode;
-	File *file;
+	byte _buffer[BUFFER_SIZE];
+	uint32 _bufferIndex;
+	uint32 _bufferLength;
+	bool _writeMode;
+	File *_file;
 };
 
 BadaFileStream::BadaFileStream(File *ioFile, bool writeMode) :
-	bufferIndex(0),
-	bufferLength(0),
-	writeMode(writeMode),
-	file(ioFile) {
+	_bufferIndex(0),
+	_bufferLength(0),
+	_writeMode(writeMode),
+	_file(ioFile) {
 	AppAssert(ioFile != 0);
 }
 
 BadaFileStream::~BadaFileStream() {
-	if (file) {
-		if (writeMode) {
+	if (_file) {
+		if (_writeMode) {
 			flush();
 		}
-		delete file;
+		delete _file;
 	}
 }
 
@@ -96,19 +90,19 @@ void BadaFileStream::clearErr() {
 }
 
 bool BadaFileStream::eos() const {
-	return (bufferLength - bufferIndex == 0) && (GetLastResult() == E_END_OF_FILE);
+	return (_bufferLength - _bufferIndex == 0) && (GetLastResult() == E_END_OF_FILE);
 }
 
 int32 BadaFileStream::pos() const {
-	return file->Tell() - (bufferLength - bufferIndex);
+	return _file->Tell() - (_bufferLength - _bufferIndex);
 }
 
 int32 BadaFileStream::size() const {
-	int32 oldPos = file->Tell();
-	file->Seek(FILESEEKPOSITION_END, 0);
+	int32 oldPos = _file->Tell();
+	_file->Seek(FILESEEKPOSITION_END, 0);
 
-	int32 length = file->Tell();
-	SetLastResult(file->Seek(FILESEEKPOSITION_BEGIN, oldPos));
+	int32 length = _file->Tell();
+	SetLastResult(_file->Seek(FILESEEKPOSITION_BEGIN, oldPos));
 
 	return length;
 }
@@ -118,25 +112,25 @@ bool BadaFileStream::seek(int32 offs, int whence) {
 	switch (whence) {
 	case SEEK_SET:
 		// set from start of file
-		SetLastResult(file->Seek(FILESEEKPOSITION_BEGIN, offs));
+		SetLastResult(_file->Seek(FILESEEKPOSITION_BEGIN, offs));
 		result = (E_SUCCESS == GetLastResult());
 		break;
 
 	case SEEK_CUR:
 		// set relative to offs
-		if (bufferIndex < bufferLength && bufferIndex > (uint32)-offs) {
+		if (_bufferIndex < _bufferLength && _bufferIndex > (uint32)-offs) {
 			// re-position within the buffer
 			SetLastResult(E_SUCCESS);
-			bufferIndex += offs;
+			_bufferIndex += offs;
 			return true;
 		} else {
-			offs -= (bufferLength - bufferIndex);
-			if (offs < 0 && file->Tell() + offs < 0) {
+			offs -= (_bufferLength - _bufferIndex);
+			if (offs < 0 && _file->Tell() + offs < 0) {
 				// avoid negative positioning
 				offs = 0;
 			}
 			if (offs != 0) {
-				SetLastResult(file->Seek(FILESEEKPOSITION_CURRENT, offs));
+				SetLastResult(_file->Seek(FILESEEKPOSITION_CURRENT, offs));
 				result = (E_SUCCESS == GetLastResult());
 			} else {
 				result = true;
@@ -146,7 +140,7 @@ bool BadaFileStream::seek(int32 offs, int whence) {
 
 	case SEEK_END:
 		// set relative to end - positive will increase the file size
-		SetLastResult(file->Seek(FILESEEKPOSITION_END, offs));
+		SetLastResult(_file->Seek(FILESEEKPOSITION_END, offs));
 		result = (E_SUCCESS == GetLastResult());
 		break;
 
@@ -159,46 +153,46 @@ bool BadaFileStream::seek(int32 offs, int whence) {
 		AppLog("seek failed");
 	}
 
-	bufferIndex = bufferLength = 0;
+	_bufferIndex = _bufferLength = 0;
 	return result;
 }
 
 uint32 BadaFileStream::read(void *ptr, uint32 len) {
 	uint32 result = 0;
 	if (!eos()) {
-		if (bufferIndex < bufferLength) {
+		if (_bufferIndex < _bufferLength) {
 			// use existing buffer
-			uint32 available = bufferLength - bufferIndex;
+			uint32 available = _bufferLength - _bufferIndex;
 			if (len <= available) {
 				// use allocation
-				memcpy((byte *)ptr, &buffer[bufferIndex], len);
-				bufferIndex += len;
+				memcpy((byte *)ptr, &_buffer[_bufferIndex], len);
+				_bufferIndex += len;
 				result = len;
 			} else {
 				// use remaining allocation
-				memcpy((byte *)ptr, &buffer[bufferIndex], available);
+				memcpy((byte *)ptr, &_buffer[_bufferIndex], available);
 				uint32 remaining = len - available;
 				result = available;
 
 				if (remaining) {
-					result += file->Read(((byte *)ptr) + available, remaining);
+					result += _file->Read(((byte *)ptr) + available, remaining);
 				}
-				bufferIndex = bufferLength = 0;
+				_bufferIndex = _bufferLength = 0;
 			}
 		} else if (len < BUFFER_SIZE) {
 			// allocate and use buffer
-			bufferIndex = 0;
-			bufferLength = file->Read(buffer, BUFFER_SIZE);
-			if (bufferLength) {
-				if (bufferLength < len) {
-					len = bufferLength;
+			_bufferIndex = 0;
+			_bufferLength = _file->Read(_buffer, BUFFER_SIZE);
+			if (_bufferLength) {
+				if (_bufferLength < len) {
+					len = _bufferLength;
 				}
-				memcpy((byte *)ptr, buffer, len);
-				result = bufferIndex = len;
+				memcpy((byte *)ptr, _buffer, len);
+				result = _bufferIndex = len;
 			}
 		} else {
-			result = file->Read((byte *)ptr, len);
-			bufferIndex = bufferLength = 0;
+			result = _file->Read((byte *)ptr, len);
+			_bufferIndex = _bufferLength = 0;
 		}
 	} else {
 		AppLog("Attempted to read past EOS");
@@ -207,14 +201,14 @@ uint32 BadaFileStream::read(void *ptr, uint32 len) {
 }
 
 uint32 BadaFileStream::write(const void *ptr, uint32 len) {
-	result r = file->Write(ptr, len);
+	result r = _file->Write(ptr, len);
 	SetLastResult(r);
 	return (r == E_SUCCESS ? len : 0);
 }
 
 bool BadaFileStream::flush() {
   logEntered();
-	SetLastResult(file->Flush());
+	SetLastResult(_file->Flush());
 	return (E_SUCCESS == GetLastResult());
 }
 
@@ -279,10 +273,7 @@ void BadaFilesystemNode::init(const Common::String &nodePath) {
 
 	StringUtil::Utf8ToString(_path.c_str(), _unicodePath);
 	_isVirtualDir = (_path == PATH_ROOT ||
-					_path == PATH_HOME ||
-					_path == PATH_HOME_SHARE ||
-					_path == PATH_HOME_SHARE2 ||
-					_path == PATH_CARD);
+                   _path == PATH_HOME);
 	_isValid = _isVirtualDir || !IsFailed(File::GetAttributes(_unicodePath, _attr));
 }
 
@@ -300,10 +291,7 @@ bool BadaFilesystemNode::isDirectory() const {
 
 bool BadaFilesystemNode::isWritable() const {
 	bool result = (_isValid && !_isVirtualDir && !_attr.IsDirectory() && !_attr.IsReadOnly());
-	if (_path == PATH_HOME ||
-		_path == PATH_HOME_EXT ||
-		_path == PATH_HOME_SHARE ||
-		_path == PATH_HOME_SHARE2) {
+	if (_path == PATH_HOME) {
 		result = true;
 	}
 	return result;
@@ -324,17 +312,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 		// present well known BADA file system areas
 		if (_path == PATH_ROOT) {
 			myList.push_back(new BadaFilesystemNode(PATH_HOME));
-			myList.push_back(new BadaFilesystemNode(PATH_HOME_EXT));
-			myList.push_back(new BadaFilesystemNode(PATH_MEDIA));
-			myList.push_back(new BadaFilesystemNode(PATH_CARD));
 			result = true; // no more entries
-		} else if (_path == PATH_CARD) {
-			myList.push_back(new BadaFilesystemNode(PATH_CARD_MEDIA));
-			result = true; // no more entries
-		} else if (_path == PATH_HOME) {
-			// ensure share path is always included
-			myList.push_back(new BadaFilesystemNode(PATH_HOME_SHARE));
-			myList.push_back(new BadaFilesystemNode(PATH_HOME_SHARE2));
 		}
 	}
 

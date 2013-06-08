@@ -31,20 +31,33 @@
 
 #include "backends/platform/bada/system.h"
 
-class BadaScummVM : public Tizen::App::Application {
+using namespace Tizen::App;
+using namespace Tizen::System;
+using namespace Tizen::Ui::Controls;
+using namespace Tizen::Base::Collection;
+
+class BadaScummVM :
+	public UiApp,
+	public IScreenEventListener {
+
 public:
 	BadaScummVM();
 	~BadaScummVM();
 
-	static Tizen::App::Application *createInstance(void);
+	static UiApp *createInstance(void);
 
-	bool OnAppInitializing(Tizen::App::AppRegistry &appRegistry);
-	bool OnAppTerminating(Tizen::App::AppRegistry &appRegistry, bool forcedTermination = false);
+	bool OnAppInitializing(AppRegistry &appRegistry);
+	bool OnAppInitialized(void);
+	bool OnAppWillTerminate(void);
+	bool OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination = false);
 	void OnForeground(void);
 	void OnBackground(void);
 	void OnLowMemory(void);
-	void OnBatteryLevelChanged(Tizen::System::BatteryLevel batteryLevel);
-	void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList *pArgs);
+	void OnBatteryLevelChanged(BatteryLevel batteryLevel);
+	void OnUserEventReceivedN(RequestId requestId, IList *pArgs);
+	void OnScreenOn(void);
+	void OnScreenOff(void);
+	void OnScreenBrightnessChanged(int brightness);
 
 private:
 	void pauseGame(bool pause);

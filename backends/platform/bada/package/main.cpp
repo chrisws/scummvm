@@ -24,44 +24,28 @@
 #include <FApp.h>
 #include <FSystem.h>
 
-#include "backends/platform/bada/portdefs.h"
-#include "backends/platform/bada/form.h"
-#include "backends/platform/bada/system.h"
 #include "backends/platform/bada/application.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 
-C_LINKAGE_BEGIN
-
-_EXPORT_ int OspMain(int argc, char *pArgv[]);
-
 /**
  * The entry function of bada application called by the operating system.
  */
-int OspMain(int argc, char *pArgv[]) {
+extern "C" _EXPORT_ int OspMain(int argc, char *pArgv[]) {
 	result r = E_SUCCESS;
 
 	AppLog("Application started.");
-	ArrayList *pArgs = new ArrayList();
-	pArgs->Construct();
-
+	ArrayList args(SingleObjectDeleter);
+	args.Construct();
 	for (int i = 0; i < argc; i++) {
-		pArgs->Add(*(new String(pArgv[i])));
+		args.Add(new (std::nothrow) String(pArgv[i]));
 	}
 
-	r = Tizen::App::Application::Execute(BadaScummVM::createInstance, pArgs);
-	if (IsFailed(r)) {
-		r &= 0x0000FFFF;
-	}
-
-	pArgs->RemoveAll(true);
-	delete pArgs;
+	r = Tizen::App::UiApp::Execute(BadaScummVM::createInstance, &args);
+	TryLog(r == E_SUCCESS, "[%s] Application execution failed", GetErrorMessage(r));
 	AppLog("Application finished.");
 
 	return static_cast<int>(r);
 }
-
-C_LINKAGE_END
-
 

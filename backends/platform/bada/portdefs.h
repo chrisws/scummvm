@@ -59,7 +59,6 @@ C_LINKAGE_BEGIN
 
 void stderr_fprintf(void *, const char *format, ...);
 void stderr_vfprintf(void *, const char *format, va_list ap);
-void *xmalloc(size_t size);
 
 #undef fprintf
 #undef vfprintf
@@ -68,7 +67,6 @@ void *xmalloc(size_t size);
 #undef stdin
 #undef fputs
 #undef fflush
-#undef malloc
 
 #define stderr (void *)0
 #define stdout (void *)1
@@ -78,7 +76,6 @@ void *xmalloc(size_t size);
 #define sscanf simple_sscanf
 #define fprintf stderr_fprintf
 #define vfprintf stderr_vfprintf
-#define malloc xmalloc
 
 int printf(const char *format, ...);
 int simple_sscanf(const char *buffer, const char *format, ...);

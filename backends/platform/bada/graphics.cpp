@@ -99,7 +99,7 @@ bool BadaGraphicsManager::loadEgl() {
 
 	EGLint numConfigs = 1;
 	EGLint eglConfigList[] = {
-		EGL_RED_SIZE,		5,
+		EGL_RED_SIZE,	5,
 		EGL_GREEN_SIZE, 6,
 		EGL_BLUE_SIZE,	5,
 		EGL_ALPHA_SIZE, 0,
@@ -132,8 +132,7 @@ bool BadaGraphicsManager::loadEgl() {
 		return false;
 	}
 
-	if (EGL_FALSE == eglChooseConfig(_eglDisplay, eglConfigList,
-																	 &_eglConfig, 1, &numConfigs) ||
+	if (EGL_FALSE == eglChooseConfig(_eglDisplay, eglConfigList, &_eglConfig, 1, &numConfigs) ||
 			EGL_SUCCESS != eglGetError()) {
 		systemError("eglChooseConfig() failed");
 		return false;
@@ -144,15 +143,13 @@ bool BadaGraphicsManager::loadEgl() {
 		return false;
 	}
 
-	_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig,
-																			(EGLNativeWindowType)_appForm, NULL);
+	_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_appForm, NULL);
 	if (EGL_NO_SURFACE == _eglSurface || EGL_SUCCESS != eglGetError()) {
 		systemError("eglCreateWindowSurface() failed. EGL_NO_SURFACE");
 		return false;
 	}
 
-	_eglContext = eglCreateContext(_eglDisplay, _eglConfig,
-																EGL_NO_CONTEXT, eglContextList);
+	_eglContext = eglCreateContext(_eglDisplay, _eglConfig, EGL_NO_CONTEXT, eglContextList);
 	if (EGL_NO_CONTEXT == _eglContext ||
 			EGL_SUCCESS != eglGetError()) {
 		systemError("eglCreateContext() failed");

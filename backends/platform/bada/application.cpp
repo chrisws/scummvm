@@ -26,14 +26,13 @@
 #include "backends/platform/bada/system.h"
 #include "backends/platform/bada/application.h"
 
-using namespace Tizen::System;
-using namespace Tizen::Ui::Controls;
-
 Application *BadaScummVM::createInstance() {
+	logEntered();
 	return new BadaScummVM();
 }
 
 BadaScummVM::BadaScummVM() : _appForm(0) {
+	logEntered();
 }
 
 BadaScummVM::~BadaScummVM() {
@@ -46,25 +45,37 @@ BadaScummVM::~BadaScummVM() {
 	}
 }
 
-bool BadaScummVM::OnAppInitializing(AppRegistry &appRegistry) {
-	_appForm = systemStart(this);
-	return (_appForm != NULL);
+bool BadaScummVM::OnAppInitialized(void) {
+	logEntered();
+	SendUserEvent(USER_MESSAGE_START, NULL);
+	return true;
 }
 
-bool BadaScummVM::OnAppTerminating(AppRegistry &appRegistry,
-																	 bool forcedTermination) {
+bool BadaScummVM::OnAppWillTerminate(void) {
 	logEntered();
 	return true;
 }
 
-void BadaScummVM::OnUserEventReceivedN(RequestId requestId,
-																			 Tizen::Base::Collection::IList *args) {
-  MessageBox messageBox;
-  int modalResult;
+bool BadaScummVM::OnAppInitializing(AppRegistry &appRegistry) {
+	logEntered();
+	_appForm = systemStart(this);
+	return (_appForm != NULL);
+}
+
+bool BadaScummVM::OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination) {
+	logEntered();
+	return true;
+}
+
+void BadaScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
+	MessageBox messageBox;
+	int modalResult;
 
 	logEntered();
 
-	if (requestId == USER_MESSAGE_EXIT) {
+	if (requestId == USER_MESSAGE_START && _appForm) {
+		_appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
+	} else if (requestId == USER_MESSAGE_EXIT) {
 		// normal program termination
 		Terminate();
 	} else if (requestId == USER_MESSAGE_EXIT_ERR) {
@@ -76,18 +87,16 @@ void BadaScummVM::OnUserEventReceivedN(RequestId requestId,
 		if (!message) {
 			message = new String("Unknown error");
 		}
-
 		messageBox.Construct(L"Oops...", *message, MSGBOX_STYLE_OK);
 		messageBox.ShowAndWait(modalResult);
 		Terminate();
-  } else if (requestId == USER_MESSAGE_EXIT_ERR_CONFIG) {
+	} else if (requestId == USER_MESSAGE_EXIT_ERR_CONFIG) {
 		// the config file was corrupted
 		messageBox.Construct(L"Config file corrupted",
-												 L"Settings have been reverted, please restart.",
-												 MSGBOX_STYLE_OK);
+				L"Settings have been reverted, please restart.", MSGBOX_STYLE_OK);
 		messageBox.ShowAndWait(modalResult);
 		Terminate();
-  }
+	}
 }
 
 void BadaScummVM::OnForeground(void) {
@@ -101,9 +110,23 @@ void BadaScummVM::OnBackground(void) {
 }
 
 void BadaScummVM::OnBatteryLevelChanged(BatteryLevel batteryLevel) {
+	logEntered();
 }
 
 void BadaScummVM::OnLowMemory(void) {
+	logEntered();
+}
+
+void BadaScummVM::OnScreenOn(void) {
+	logEntered();
+}
+
+void BadaScummVM::OnScreenOff(void) {
+	logEntered();
+}
+
+void BadaScummVM::OnScreenBrightnessChanged(int brightness) {
+	logEntered();
 }
 
 void BadaScummVM::pauseGame(bool pause) {
@@ -113,7 +136,7 @@ void BadaScummVM::pauseGame(bool pause) {
 		}
 
 		if (g_system) {
-			((BadaSystem *)g_system)->setMute(pause);
+		//	((BadaSystem *)g_system)->setMute(pause);
 		}
 	}
 }

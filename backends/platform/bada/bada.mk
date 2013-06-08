@@ -2,13 +2,13 @@
 
 MODULE := backends/platform/bada
 
-CXXFLAGS := $(CXXFLAGS) -DFORBIDDEN_SYMBOL_ALLOW_ALL -w
+CXXFLAGS := -I"pch" $(CXXFLAGS) -DFORBIDDEN_SYMBOL_ALLOW_ALL
 
 MODULE_OBJS :=  \
-  fs.o          \
-  application.o \
   audio.o       \
+  application.o \
   form.o        \
+  fs.o          \
   graphics.o    \
   missing.o     \
   sscanf.o      \
@@ -19,4 +19,4 @@ OBJS := $(MODULE_OBJS) $(OBJS)
 
 $(EXECUTABLE): $(OBJS)
 	rm -f $@
-	ar Tru $@ $(OBJS)
+	arm-linux-gnueabi-ar Tru $@ $(OBJS)

@@ -41,10 +41,10 @@
 //
 class BadaAppForm :
 	public Tizen::Ui::Controls::Form,
+	public Tizen::Base::Runtime::IRunnable,
 	public Tizen::Ui::IOrientationEventListener,
 	public Tizen::Ui::ITouchEventListener,
-	public Tizen::Ui::IKeyEventListener,
-	public Tizen::Base::Runtime::IRunnable {
+	public Tizen::Ui::IKeyEventListener {
 public:
 	BadaAppForm();
 	~BadaAppForm();

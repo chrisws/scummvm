@@ -44,11 +44,12 @@
 using namespace Tizen::Base;
 using namespace Tizen::Base::Runtime;
 using namespace Tizen::Locales;
+using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::System;
 
-#define DEFAULT_CONFIG_FILE "/Home/scummvm.ini"
-#define RESOURCE_PATH       "/Res"
+#define DEFAULT_CONFIG_FILE "/data/scummvm.ini"
+#define RESOURCE_PATH       "/res"
 #define MUTEX_BUFFER_SIZE 5
 
 //
@@ -65,7 +66,7 @@ AbstractFSNode *BadaFilesystemFactory::makeRootFileNode() const {
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	return new BadaFilesystemNode("/Home");
+	return new BadaFilesystemNode("/data");
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeFileNodePath(const Common::String &path) const {
@@ -488,6 +489,13 @@ int BadaSystem::getLevel() {
 BadaAppForm *systemStart(Tizen::App::Application *app) {
 	logEntered();
 
+	Frame *appFrame = new (std::nothrow) Frame();
+	if (!appFrame || appFrame->Construct() == E_FAILURE) {
+		AppLog("Failed to create appFrame");
+		return NULL;
+	}
+	app->AddFrame(*appFrame);
+
 	BadaAppForm *appForm = new BadaAppForm();
 	if (!appForm) {
 		AppLog("Failed to create appForm");
@@ -495,12 +503,14 @@ BadaAppForm *systemStart(Tizen::App::Application *app) {
 	}
 
 	if (E_SUCCESS != appForm->Construct() ||
-			E_SUCCESS != app->GetAppFrame()->GetFrame()->AddControl(*appForm)) {
+		E_SUCCESS != appFrame->AddControl(*appForm)) {
 		delete appForm;
 		AppLog("Failed to construct appForm");
 		return NULL;
 	}
 
+	appFrame->SetCurrentForm(appForm);
+	logLeaving();
 	return appForm;
 }
 
@@ -524,15 +534,4 @@ void systemError(const char *message) {
 		BadaSystem *system = (BadaSystem *)g_system;
 		system->exitSystem();
 	}
-}
-
-//
-// wrapper to support malloc(0) returning non null
-//
-extern "C" void *xmalloc(size_t size) {
-	void *result = malloc(size);
-	if (!result && !size) {
-		result = malloc(1);
-	}
-	return result;
 }

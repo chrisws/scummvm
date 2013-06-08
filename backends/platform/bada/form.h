@@ -51,12 +51,13 @@ public:
 
 	result Construct();
 	bool pollEvent(Common::Event &event);
+  void setActive();
 	bool isClosing() { return _state == kClosingState; }
 	void pushKey(Common::KeyCode keycode);
 	void exitSystem();
 
 private:
-	Object *Run();
+	Tizen::Base::Object *Run();
 	result OnInitializing(void);
 	result OnDraw(void);
 	void OnOrientationChanged(const Tizen::Ui::Control &source,

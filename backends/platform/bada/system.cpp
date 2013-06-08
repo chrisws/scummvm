@@ -125,19 +125,19 @@ struct BadaMutexManager : public MutexManager {
 	void unlockMutex(OSystem::MutexRef mutex);
 	void deleteMutex(OSystem::MutexRef mutex);
 private:
-	Mutex *buffer[MUTEX_BUFFER_SIZE];
+	Mutex *_buffer[MUTEX_BUFFER_SIZE];
 };
 
 BadaMutexManager::BadaMutexManager() {
 	for (int i = 0; i < MUTEX_BUFFER_SIZE; i++) {
-		buffer[i] = NULL;
+		_buffer[i] = NULL;
 	}
 }
 
 BadaMutexManager::~BadaMutexManager() {
 	for (int i = 0; i < MUTEX_BUFFER_SIZE; i++) {
-		if (buffer[i] != NULL) {
-			delete buffer[i];
+		if (_buffer[i] != NULL) {
+			delete _buffer[i];
 		}
 	}
 }
@@ -147,8 +147,8 @@ OSystem::MutexRef BadaMutexManager::createMutex() {
 	mutex->Create();
 
 	for (int i = 0; i < MUTEX_BUFFER_SIZE; i++) {
-		if (buffer[i] == NULL) {
-			buffer[i] = mutex;
+		if (_buffer[i] == NULL) {
+			_buffer[i] = mutex;
 			break;
 		}
 	}
@@ -170,8 +170,8 @@ void BadaMutexManager::deleteMutex(OSystem::MutexRef mutex) {
 	Mutex *m = (Mutex *)mutex;
 
 	for (int i = 0; i < MUTEX_BUFFER_SIZE; i++) {
-		if (buffer[i] == m) {
-			buffer[i] = NULL;
+		if (_buffer[i] == m) {
+			_buffer[i] = NULL;
 		}
 	}
 
@@ -323,13 +323,11 @@ void BadaSystem::initBackend() {
 	BadaFilesystemNode file(fileName);
 	if (file.exists()) {
 		Common::SeekableReadStream *stream = file.createReadStream();
-		if (stream) {
-			if (fontFile.open(stream, fileName)) {
-				Graphics::BdfFont *font = Graphics::BdfFont::loadFromCache(fontFile);
-				if (font) {
-					// use this font for the vkbd and on-screen messages
-					FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
-				}
+		if (stream && fontFile.open(stream, fileName)) {
+			Graphics::BdfFont *font = Graphics::BdfFont::loadFromCache(fontFile);
+			if (font) {
+				// use this font for the vkbd and on-screen messages
+				FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
 			}
 		}
 	}
@@ -503,13 +501,13 @@ BadaAppForm *systemStart(Tizen::App::Application *app) {
 	}
 
 	if (E_SUCCESS != appForm->Construct() ||
-		E_SUCCESS != appFrame->AddControl(*appForm)) {
+		E_SUCCESS != app->GetAppFrame()->GetFrame()->AddControl(*appForm)) {
 		delete appForm;
 		AppLog("Failed to construct appForm");
 		return NULL;
 	}
 
-	appFrame->SetCurrentForm(appForm);
+	app->GetAppFrame()->GetFrame()->SetCurrentForm(appForm);
 	logLeaving();
 	return appForm;
 }

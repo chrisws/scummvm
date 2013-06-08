@@ -47,7 +47,7 @@ BadaScummVM::~BadaScummVM() {
 
 bool BadaScummVM::OnAppInitialized(void) {
 	logEntered();
-	SendUserEvent(USER_MESSAGE_START, NULL);
+  _appForm->setActive();
 	return true;
 }
 
@@ -73,9 +73,7 @@ void BadaScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
 
 	logEntered();
 
-	if (requestId == USER_MESSAGE_START && _appForm) {
-		_appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
-	} else if (requestId == USER_MESSAGE_EXIT) {
+  if (requestId == USER_MESSAGE_EXIT) {
 		// normal program termination
 		Terminate();
 	} else if (requestId == USER_MESSAGE_EXIT_ERR) {
@@ -136,7 +134,7 @@ void BadaScummVM::pauseGame(bool pause) {
 		}
 
 		if (g_system) {
-		//	((BadaSystem *)g_system)->setMute(pause);
+			((BadaSystem *)g_system)->setMute(pause);
 		}
 	}
 }

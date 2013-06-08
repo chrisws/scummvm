@@ -20,18 +20,19 @@
  *
  */
 
-#include <FAppApplication.h>
+#include <FApp.h>
+#include <FSysSystemTime.h>
 
 #include "common/translation.h"
 #include "base/main.h"
 
 #include "backends/platform/bada/form.h"
 #include "backends/platform/bada/system.h"
-#include <FSysSystemTime.h>
 
 using namespace Tizen::Base::Runtime;
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
+using namespace Tizen::Graphics;
 
 // number of volume levels
 #define LEVEL_RANGE 5
@@ -116,6 +117,10 @@ BadaAppForm::~BadaAppForm() {
 	}
 
 	logLeaving();
+}
+
+void BadaAppForm::setActive() {
+	SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 }
 
 //
@@ -254,11 +259,11 @@ void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus 
 	}
 }
 
-Object *BadaAppForm::Run() {
+Tizen::Base::Object *BadaAppForm::Run() {
 	logEntered();
 	//scummvm_main(0, 0);
 	if (_state == kActiveState) {
-		Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
+		Tizen::App::Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
 	}
 	_state = kDoneState;
 	return NULL;

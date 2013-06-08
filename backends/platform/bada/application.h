@@ -30,9 +30,11 @@
 #include <FSystem.h>
 
 #include "backends/platform/bada/system.h"
+#include "backends/platform/bada/form.h"
 
 using namespace Tizen::App;
 using namespace Tizen::System;
+using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
@@ -46,18 +48,18 @@ public:
 
 	static UiApp *createInstance(void);
 
-	bool OnAppInitializing(AppRegistry &appRegistry);
-	bool OnAppInitialized(void);
-	bool OnAppWillTerminate(void);
-	bool OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination = false);
-	void OnForeground(void);
-	void OnBackground(void);
-	void OnLowMemory(void);
-	void OnBatteryLevelChanged(BatteryLevel batteryLevel);
-	void OnUserEventReceivedN(RequestId requestId, IList *pArgs);
-	void OnScreenOn(void);
-	void OnScreenOff(void);
-	void OnScreenBrightnessChanged(int brightness);
+	virtual bool OnAppInitializing(AppRegistry &appRegistry);
+	virtual bool OnAppInitialized(void);
+	virtual bool OnAppWillTerminate(void);
+	virtual bool OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination = false);
+	virtual void OnLowMemory(void);
+	virtual void OnBatteryLevelChanged(BatteryLevel batteryLevel);
+	virtual void OnUserEventReceivedN(RequestId requestId, IList *pArgs);
+	virtual void OnForeground(void);
+	virtual void OnBackground(void);
+	virtual void OnScreenOn(void);
+	virtual void OnScreenOff(void);
+	virtual void OnScreenBrightnessChanged(int brightness);
 
 private:
 	void pauseGame(bool pause);

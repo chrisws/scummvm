@@ -433,11 +433,17 @@ void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
 void BadaAppForm::OnKeyPressed(const Control &source, KeyCode keyCode) {
 	switch (keyCode) {
 	case KEY_SIDE_UP:
-		setShortcut();
+		if (gameActive()) {
+		  setShortcut();
+		  ((Control &) source).ConsumeInputEvent();
+		}
 		return;
 
 	case KEY_SIDE_DOWN:
-		invokeShortcut();
+		if (gameActive()) {
+		  invokeShortcut();
+		  ((Control &) source).ConsumeInputEvent();
+		}
 		break;
 
 	case KEY_CAMERA:

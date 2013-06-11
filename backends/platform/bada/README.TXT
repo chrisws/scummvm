@@ -33,7 +33,7 @@ export CFLAGS=${CPPFLAGS}
  $ ./configure --static --prefix=${TIZEN_LIBS}
  $ make && make install
 
- 3.2 libtheora, libogg, libvorbis, libmad, FLAC
+ 3.2 freetype, libtheora, libogg, libvorbis, libmad, FLAC
 
  $ ./configure --host=arm-linux-gnueabi --prefix=${TIZEN_LIBS} --disable-shared
  $ make && make install

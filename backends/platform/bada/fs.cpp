@@ -343,7 +343,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 		if (_path == "/") {
 			myList.push_back(new BadaFilesystemNode(kData));
 			myList.push_back(new BadaFilesystemNode(kResource));
-			myList.push_back(new BadaFilesystemNode(kShared));
+			myList.push_back(new BadaFilesystemNode(kSdCard));
 			myList.push_back(new BadaFilesystemNode(kMedia));
 			myList.push_back(new BadaFilesystemNode(kShared));
 			result = true; // no more entries

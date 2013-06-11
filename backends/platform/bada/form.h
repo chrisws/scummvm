@@ -35,6 +35,7 @@
 #include "common/events.h"
 #include "common/queue.h"
 #include "common/mutex.h"
+#include "engines/engine.h"
 
 //
 // BadaAppForm
@@ -95,6 +96,7 @@ private:
 	void showKeypad();
 	void showLevel(int level);
 	void invokeShortcut();
+	bool gameActive() { return _state == kActiveState && g_engine != NULL && !g_engine->isPaused(); }
 
 	// event handling
 	const char *_osdMessage;

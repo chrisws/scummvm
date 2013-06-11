@@ -3574,7 +3574,7 @@ if test "$_freetype2" != "no"; then
 	if test -z "$_freetypeconfig"; then
 		_freetype2=no
 	else
-		FREETYPE2_LIBS=`$_freetypeconfig --prefix="$_freetypepath" --libs`
+		FREETYPE2_LIBS="`$_freetypeconfig --prefix="$_freetypepath" --libs` -lz"
 		FREETYPE2_CFLAGS=`$_freetypeconfig --prefix="$_freetypepath" --cflags`
 
 		if test "$_freetype2" = "auto"; then

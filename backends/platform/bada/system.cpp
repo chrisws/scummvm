@@ -48,8 +48,7 @@ using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::System;
 
-//#define DEFAULT_CONFIG_FILE "scummvm.ini"
-#define DEFAULT_CONFIG_FILE "/data/scummvm.ini"
+#define DEFAULT_CONFIG_FILE "scummvm.ini"
 #define MUTEX_BUFFER_SIZE 5
 
 //
@@ -67,8 +66,6 @@ AbstractFSNode *BadaFilesystemFactory::makeRootFileNode() const {
 
 AbstractFSNode *BadaFilesystemFactory::makeCurrentDirectoryFileNode() const {
 	logEntered();
-	//getDataFileNode();
-	//return new BadaFilesystemNode("/data");
 	return new BadaFilesystemNode(kData);
 }
 
@@ -292,16 +289,18 @@ result BadaSystem::initModules() {
 void BadaSystem::initBackend() {
 	logEntered();
 
+	Common::String resourcePath = fromString(App::GetInstance()->GetAppResourcePath());
+
 	// use the mobile device theme
-	ConfMan.set("gui_theme", "/res/scummmobile");
+	ConfMan.set("gui_theme", resourcePath + "scummmodern");
 
 	// allow bada virtual keypad pack to be found
-	ConfMan.set("vkeybdpath", "/res/vkeybd_bada");
+	ConfMan.set("vkeybdpath", resourcePath + "vkeybd_bada");
 	ConfMan.set("vkeybd_pack_name", "vkeybd_bada");
 
 	// set default save path to writable area
 	if (!ConfMan.hasKey("savepath")) {
-		ConfMan.set("savepath", "/Home/Share");
+		ConfMan.set("savepath", fromString(App::GetInstance()->GetAppDataPath()));
 	}
 
 	// default to no auto-save
@@ -319,19 +318,19 @@ void BadaSystem::initBackend() {
 		AppLog("initModules failed");
 	} else {
 		OSystem::initBackend();
-	}
 
-	// replace kBigGUIFont using the large font from the scummmobile theme
-	Common::File fontFile;
-	Common::String fileName = "/res/scummmobile/helvB14-iso-8859-1.fcc";
-	BadaFilesystemNode file(fileName);
-	if (file.exists()) {
-		Common::SeekableReadStream *stream = file.createReadStream();
-		if (stream && fontFile.open(stream, fileName)) {
-			Graphics::BdfFont *font = Graphics::BdfFont::loadFromCache(fontFile);
-			if (font) {
-				// use this font for the vkbd and on-screen messages
-				FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
+		// replace kBigGUIFont using the large font from the scummmobile theme
+		Common::File fontFile;
+		Common::String fileName = resourcePath + "scummmobile/helvB14-iso-8859-1.fcc";
+		BadaFilesystemNode file(fileName);
+		if (file.exists()) {
+			Common::SeekableReadStream *stream = file.createReadStream();
+			if (stream && fontFile.open(stream, fileName)) {
+				Graphics::BdfFont *font = Graphics::BdfFont::loadFromCache(fontFile);
+				if (font) {
+					// use this font for the vkbd and on-screen messages
+					FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
+				}
 			}
 		}
 	}
@@ -434,16 +433,12 @@ void BadaSystem::logMessage(LogMessageType::Type type, const char *message) {
 }
 
 Common::SeekableReadStream *BadaSystem::createConfigReadStream() {
-//	const Tizen::Base::String config = App::GetInstance()->GetAppDataPath() + DEFAULT_CONFIG_FILE;
-//	BadaFilesystemNode file(config, DEFAULT_CONFIG_FILE);
-	BadaFilesystemNode file(DEFAULT_CONFIG_FILE);
+	BadaFilesystemNode file(fromString(App::GetInstance()->GetAppDataPath()) + DEFAULT_CONFIG_FILE);
 	return file.createReadStream();
 }
 
 Common::WriteStream *BadaSystem::createConfigWriteStream() {
-//	const Tizen::Base::String config = App::GetInstance()->GetAppDataPath() + DEFAULT_CONFIG_FILE;
-//	BadaFilesystemNode file(config, DEFAULT_CONFIG_FILE);
-	BadaFilesystemNode file(DEFAULT_CONFIG_FILE);
+	BadaFilesystemNode file(fromString(App::GetInstance()->GetAppDataPath()) + DEFAULT_CONFIG_FILE);
 	return file.createWriteStream();
 }
 

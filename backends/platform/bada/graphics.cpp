@@ -33,7 +33,7 @@ BadaGraphicsManager::BadaGraphicsManager(BadaAppForm *appForm) :
 	_appForm(appForm),
 	_eglDisplay(EGL_DEFAULT_DISPLAY),
 	_eglSurface(EGL_NO_SURFACE),
-	_eglConfig(0),
+	_eglConfig(NULL),
 	_eglContext(EGL_NO_CONTEXT),
 	_initState(true) {
 	assert(appForm != NULL);
@@ -75,8 +75,8 @@ Common::List<Graphics::PixelFormat> BadaGraphicsManager::getSupportedFormats() c
 
 bool BadaGraphicsManager::hasFeature(OSystem::Feature f) {
 	bool result = (f == OSystem::kFeatureFullscreenMode ||
-								 f == OSystem::kFeatureVirtualKeyboard ||
-								 OpenGLGraphicsManager::hasFeature(f));
+			f == OSystem::kFeatureVirtualKeyboard ||
+			OpenGLGraphicsManager::hasFeature(f));
 	return result;
 }
 
@@ -186,27 +186,20 @@ bool BadaGraphicsManager::loadGFXMode() {
 
 void BadaGraphicsManager::loadTextures() {
 	logEntered();
-
 	OpenGLGraphicsManager::loadTextures();
-
-	// prevent image skew in some games, see:
-	// http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
 void BadaGraphicsManager::internUpdateScreen() {
 	if (!_initState) {
 		OpenGLGraphicsManager::internUpdateScreen();
 		eglSwapBuffers(_eglDisplay, _eglSurface);
-	} else {
-		showSplash();
 	}
 }
 
 void BadaGraphicsManager::unloadGFXMode() {
 	logEntered();
 
-	if (EGL_NO_DISPLAY != _eglDisplay) {
+	if (_eglDisplay != EGL_NO_DISPLAY) {
 		eglMakeCurrent(_eglDisplay, NULL, NULL, NULL);
 
 		if (_eglContext != EGL_NO_CONTEXT) {
@@ -224,35 +217,6 @@ void BadaGraphicsManager::unloadGFXMode() {
 	}
 
 	_eglConfig = NULL;
-
 	OpenGLGraphicsManager::unloadGFXMode();
 	logLeaving();
-}
-
-// display a simple splash screen until launcher is ready
-void BadaGraphicsManager::showSplash() {
-	Canvas canvas;
-	canvas.Construct();
-	canvas.SetBackgroundColor(Color::GetColor(COLOR_ID_BLACK));
-	canvas.Clear();
-
-	int x = _videoMode.hardwareWidth / 3;
-	int y = _videoMode.hardwareHeight / 3;
-
-	Font *pFont = new Font();
-	pFont->Construct(FONT_STYLE_ITALIC | FONT_STYLE_BOLD, 55);
-	canvas.SetFont(*pFont);
-	canvas.SetForegroundColor(Color::GetColor(COLOR_ID_GREEN));
-	canvas.DrawText(Point(x, y), L"ScummVM");
-	delete pFont;
-
-	pFont = new Font();
-	pFont->Construct(FONT_STYLE_ITALIC | FONT_STYLE_BOLD, 35);
-	canvas.SetFont(*pFont);
-	canvas.SetForegroundColor(Color::GetColor(COLOR_ID_WHITE));
-	canvas.DrawText(Point(x + 70, y + 50), L"Loading ...");
-	delete pFont;
-
-	canvas.Show();
-
 }

@@ -47,7 +47,6 @@ BadaScummVM::~BadaScummVM() {
 
 bool BadaScummVM::OnAppInitialized(void) {
 	logEntered();
-  _appForm->setActive();
 	return true;
 }
 
@@ -73,7 +72,7 @@ void BadaScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
 
 	logEntered();
 
-  if (requestId == USER_MESSAGE_EXIT) {
+	if (requestId == USER_MESSAGE_EXIT) {
 		// normal program termination
 		Terminate();
 	} else if (requestId == USER_MESSAGE_EXIT_ERR) {

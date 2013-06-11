@@ -60,39 +60,30 @@ BadaAppForm::BadaAppForm() :
 }
 
 result BadaAppForm::Construct() {
+	BadaSystem *badaSystem = NULL;
 	result r = Form::Construct(FORM_STYLE_NORMAL);
-	if (IsFailed(r)) {
-		return r;
+	if (!IsFailed(r)) {
+		badaSystem = new BadaSystem(this);
+		r = badaSystem != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
 	}
-
-	BadaSystem *badaSystem = new BadaSystem(this);
-	r = badaSystem != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
-
 	if (!IsFailed(r)) {
 		r = badaSystem->Construct();
 	}
-
 	if (!IsFailed(r)) {
 		_gameThread = new Thread();
 		r = _gameThread != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
 	}
-
 	if (!IsFailed(r)) {
 		r = _gameThread->Construct(*this);
 	}
-
-	if (IsFailed(r)) {
-		if (badaSystem != NULL) {
-			delete badaSystem;
-		}
-		if (_gameThread != NULL) {
-			delete _gameThread;
-			_gameThread = NULL;
-		}
-	} else {
+	if (!IsFailed(r)) {
 		g_system = badaSystem;
 	}
-
+	else {
+		delete badaSystem;
+		delete _gameThread;
+		_gameThread = NULL;
+	}
 	return r;
 }
 
@@ -117,10 +108,6 @@ BadaAppForm::~BadaAppForm() {
 	}
 
 	logLeaving();
-}
-
-void BadaAppForm::setActive() {
-	SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 }
 
 //
@@ -178,11 +165,6 @@ result BadaAppForm::OnInitializing(void) {
 
 result BadaAppForm::OnDraw(void) {
 	logEntered();
-	Canvas *canvas = GetCanvasN();
-	canvas->SetBackgroundColor(Color::GetColor(COLOR_ID_BLUE));
-	canvas->Clear();
-	canvas->DrawText(Point(10, 10), L"Starting...");
-	delete canvas;
 	return E_SUCCESS;
 }
 
@@ -255,13 +237,13 @@ void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus 
 	logEntered();
 	if (_state == kInitState) {
 		_state = kActiveState;
-		//_gameThread->Start();
+		_gameThread->Start();
 	}
 }
 
 Tizen::Base::Object *BadaAppForm::Run() {
 	logEntered();
-	//scummvm_main(0, 0);
+	scummvm_main(0, 0);
 	if (_state == kActiveState) {
 		Tizen::App::Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
 	}
@@ -272,19 +254,19 @@ Tizen::Base::Object *BadaAppForm::Run() {
 void BadaAppForm::setButtonShortcut() {
 	switch (_buttonState) {
 	case kLeftButton:
-		setMessage(_("Right Click Once"));
+		setMessage(_s("Right Click Once"));
 		_buttonState = kRightButtonOnce;
 		break;
 	case kRightButtonOnce:
-		setMessage(_("Right Click"));
+		setMessage(_s("Right Click"));
 		_buttonState = kRightButton;
 		break;
 	case kRightButton:
-		setMessage(_("Move Only"));
+		setMessage(_s("Move Only"));
 		_buttonState = kMoveOnly;
 		break;
 	case kMoveOnly:
-		setMessage(_("Left Click"));
+		setMessage(_s("Left Click"));
 		_buttonState = kLeftButton;
 		break;
 	}
@@ -300,17 +282,17 @@ void BadaAppForm::setShortcut() {
 	// cycle to the next shortcut
 	switch (_shortcut) {
 	case kControlMouse:
-		setMessage(_("Escape Key"));
+		setMessage(_s("Escape Key"));
 		_shortcut = kEscapeKey;
 		break;
 
 	case kEscapeKey:
-		setMessage(_("Game Menu"));
+		setMessage(_s("Game Menu"));
 		_shortcut = kGameMenu;
 		break;
 
 	case kGameMenu:
-		setMessage(_("Show Keypad"));
+		setMessage(_s("Show Keypad"));
 		_shortcut = kShowKeypad;
 		break;
 
@@ -320,7 +302,7 @@ void BadaAppForm::setShortcut() {
 		break;
 
 	case kSetVolume:
-		setMessage(_("Control Mouse"));
+		setMessage(_s("Control Mouse"));
 		_shortcut = kControlMouse;
 		break;
 	}
@@ -366,8 +348,8 @@ void BadaAppForm::showLevel(int level) {
 		ind[j--] = level >= i ? '|' : ' ';
 	}
 	snprintf(levelMessage, sizeof(levelMessage), 
-					 "Volume: [ %c%c%c%c%c ]",
-					 ind[0], ind[1], ind[2], ind[3], ind[4]);
+			"Volume: [ %c%c%c%c%c ]",
+			ind[0], ind[1], ind[2], ind[3], ind[4]);
 	setMessage(levelMessage);
 }
 

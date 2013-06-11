@@ -1,4 +1,78 @@
-Build instructions:
+Build instructions (using linux)
+
+1. Install the Tizen SDK
+
+http://www.tizen.org
+
+To use an alternative Java SDK to run the Tizen IDE (eclipse), edit ~/.profile 
+
+export JAVA_HOME=/opt/jdk1.6.0_45
+export PATH=${PATH}:${JAVA_HOME}/bin
+
+2. Add the following to your ~/.bashrc file
+
+export TIZEN_SDK=${HOME}/tizen-sdk
+export TIZEN_ROOTSTRAP=${TIZEN_SDK}/platforms/tizen2.1/rootstraps/tizen-device-2.1.native
+export TIZEN_BIN=${TIZEN_SDK}/tools/arm-linux-gnueabi-gcc-4.5/bin
+export TIZEN_LIBS=${HOME}/tizen-lib
+export PATH=${PATH}:${TIZEN_BIN}:~/bin
+export CHOST=arm-linux-gnueabi
+export LDFLAGS="--sysroot=${TIZEN_ROOTSTRAP} -L${TIZEN_LIBS}/lib"
+export CPPFLAGS="--sysroot=${TIZEN_ROOTSTRAP} -fmessage-length=0 -fPIC\
+  -I${TIZEN_ROOTSTRAP}/usr/include -I${TIZEN_LIBS}/include"
+export CFLAGS=${CPPFLAGS}
+
+3. Build dependencies
+
+ See: "Building the libraries" under:
+ http://wiki.scummvm.org/index.php/Compiling_ScummVM/MinGW#Building_the_libraries
+ for instructions on how to obtain these modules
+
+ 3.1 zlib
+
+ $ ./configure --static --prefix=${TIZEN_LIBS}
+ $ make && make install
+
+ 3.2 libtheora, libogg, libvorbis, libmad, FLAC
+
+ $ ./configure --host=arm-linux-gnueabi --prefix=${TIZEN_LIBS} --disable-shared
+ $ make && make install
+
+ Note: you can ignore the ranlib errors when doing make install.
+
+ 3.3 Linker ordering: scummvm, theoradec, vorbis, vorbisfile, mad, FLAC, ogg, z
+
+4. Build the ScummVM base library:
+
+  ./configure --host=tizen --enable-release
+
+  For development:
+
+  ./configure --host=tizen --enable-verbose-build --enable-debug
+
+5. Build the front end application using Tizen IDE
+
+ Copy the scummvm/dists/bada folder into a clean directory
+ outside of the scummvm package. Start the BADA IDE then
+ choose this folder as the eclipse workspace. Click
+ Project / Build.
+
+Links:
+
+A short turorial on implementing OpenGL ES 1.1 in BADA:
+  http://forums.badadev.com/viewtopic.php?f=7&t=208
+
+HelvB14 font files:
+ http://www.cl.cam.ac.uk/~mgk25/ucs-fonts.html
+ http://www.cl.cam.ac.uk/~mgk25/download/ucs-fonts-75dpi100dpi.tar.gz
+
+ Then run the following command:
+ $ ./ucs2any.pl 100dpi/helvB14.bdf MAPPINGS/8859-1.TXT iso8859-1 \
+   MAPPINGS/8859-2.TXT iso8859-2 MAPPINGS/8859-3.TXT iso8859-3
+
+
+=====================================================================
+Archived build instruction for BADA/cygwin
 
 1. Install BADA SDK (requires free registration):
 
@@ -31,62 +105,3 @@ Build instructions:
  gcc:
  #!/bin/sh
  ${ARM_BIN}/arm-samsung-nucleuseabi-gcc.exe $*
-
-3. Build dependencies
-
- zlib, libogg, libvorbis, libmad, FLAC
-
- see: "Building the libraries" under:
- http://wiki.scummvm.org/index.php/Compiling_ScummVM/MinGW#Building_the_libraries
- for instructions on how to obtain these modules
-
- 3.1 For Target-Release configure ogg and mad with:
-
-     ./configure --host=arm-samsung-nucleuseabi --disable-shared
-
-     when building vorbis and flac:
-
-     ./configure --host=arm-samsung-nucleuseabi --disable-shared --with-ogg=c:/cygwin/usr/local
-
- 3.2 for each module, after a successful configure, add the following
-     to the generated config.h (gzguts.h for zlib)
-
-     #undef __MINGW32__
-     #undef _WIN32
-     #include "c:/src/scummvm/backends/platform/bada/portdefs.h"
-
- 3.3 Additional post configure edits:
-
-   - removed -fforce-mem from the libMAD Makefile
-   - in libvorbis/lib/Makefile comment lines with vorbis_selftests
-   - edit libFLAC/Makefile ... CFLAGS = $(OGG_CFLAGS)
-
- Note: you can ignore the ranlib errors when doing make install.
-
-4. Build the ScummVM base library:
-
-  ./configure --host=bada --enable-release
-
-  To target the Win32 simulator:
-
- ./configure --host=bada --enable-debug
-
-5. Build the front end application using BADA-Ide:
-
- Copy the scummvm/dists/bada folder into a clean directory
- outside of the scummvm package. Start the BADA IDE then
- choose this folder as the eclipse workspace. Click
- Project / Build.
-
-Links:
-
-A short turorial on implementing OpenGL ES 1.1 in BADA:
-  http://forums.badadev.com/viewtopic.php?f=7&t=208
-
-HelvB14 font files:
- http://www.cl.cam.ac.uk/~mgk25/ucs-fonts.html
- http://www.cl.cam.ac.uk/~mgk25/download/ucs-fonts-75dpi100dpi.tar.gz
-
- Then run the following command:
- $ ./ucs2any.pl 100dpi/helvB14.bdf MAPPINGS/8859-1.TXT iso8859-1 \
-   MAPPINGS/8859-2.TXT iso8859-2 MAPPINGS/8859-3.TXT iso8859-3

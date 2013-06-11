@@ -36,6 +36,16 @@ using namespace Tizen::Io;
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
 
+//
+// converts a Tizen (wchar) String into a scummVM (char) string
+//
+Common::String fromString(const Tizen::Base::String &in);
+
+//
+// Enumerates the possible system paths
+//
+enum SystemPath { kData, kResource, kSdCard, kMedia, kShared };
+
 /**
  * Implementation of the ScummVM file system API based on BADA.
  *
@@ -49,6 +59,13 @@ public:
 	 * @param path the path the new node should point to.
 	 */
 	BadaFilesystemNode(const Common::String &path);
+
+	/**
+	 * Creates a BadaFilesystemNode from the given Tizen internal path
+	 *
+	 * @param path the path the new node should point to.
+	 */
+	BadaFilesystemNode(SystemPath systemPath);
 
 	Common::String getDisplayName() const { return _displayName; }
 	Common::String getName() const { return _displayName; }
@@ -68,6 +85,7 @@ public:
 
 protected:
 	BadaFilesystemNode(const Common::String &root, const Common::String &p);
+
 	void init(const Common::String &nodePath);
 
 	Common::String _displayName;

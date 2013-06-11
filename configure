@@ -2226,10 +2226,8 @@ case $_host_os in
 	tizen)
 		add_line_to_config_mk "TIZEN_ROOTSTRAP = $TIZEN_ROOTSTRAP"
     LDFLAGS="$LDFLAGS --sysroot=${TIZEN_ROOTSTRAP}"
-		# assume dependencies have been installed in cygwin's /usr/local
-		#CYGWIN_USR_LOCAL="`cygpath -m /usr/local`"
-		#LDFLAGS="$LDFLAGS -L${CYGWIN_USR_LOCAL}/lib"
-		#CXXFLAGS="$CXXFLAGS -I${CYGWIN_USR_LOCAL}/include"
+		LDFLAGS="$LDFLAGS -L${TIZEN_LIBS}/lib"
+		CXXFLAGS="$CXXFLAGS -I${TIZEN_LIBS}/include"
 		;;
 	webos)
 		CXXFLAGS="$CXXFLAGS --sysroot=$WEBOS_PDK/arm-gcc/sysroot"

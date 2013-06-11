@@ -51,7 +51,6 @@ public:
 
 	result Construct();
 	bool pollEvent(Common::Event &event);
-  void setActive();
 	bool isClosing() { return _state == kClosingState; }
 	void pushKey(Common::KeyCode keycode);
 	void exitSystem();

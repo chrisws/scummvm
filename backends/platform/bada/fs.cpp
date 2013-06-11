@@ -20,15 +20,25 @@
  */
 
 #include "config.h"
+#include "common/translation.h"
 #include "backends/platform/bada/system.h"
 #include "backends/platform/bada/fs.h"
 
+#include <FAppApp.h>
+
 #define BUFFER_SIZE 1024
 
-// internal BADA paths
-#define PATH_ROOT        "/"
-#define PATH_HOME        "/data"
-#define PATH_HOME_X      "/data/"
+using namespace Tizen::App;
+
+//
+// converts a Tizen (wchar) String into a scummVM (char) string
+//
+Common::String fromString(const Tizen::Base::String &in) {
+	ByteBuffer *buf = StringUtil::StringToUtf8N(in);
+	Common::String result((const char*)buf->GetPointer());
+	delete buf;
+	return result;
+}
 
 //
 // BadaFileStream
@@ -207,7 +217,7 @@ uint32 BadaFileStream::write(const void *ptr, uint32 len) {
 }
 
 bool BadaFileStream::flush() {
-  logEntered();
+	logEntered();
 	SetLastResult(_file->Flush());
 	return (E_SUCCESS == GetLastResult());
 }
@@ -217,41 +227,62 @@ BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode)
 
 	String filePath = path;
 	if (writeMode && (path[0] != '.' && path[0] != '/')) {
-		filePath.Insert(PATH_HOME_X, 0);
+		filePath.Insert(App::GetInstance()->GetAppDataPath() + L"/", 0);
 	}
 
 	AppLog("Open file %S", filePath.GetPointer());
-
+	BadaFileStream *stream;
 	result r = ioFile->Construct(filePath, writeMode ? L"w" : L"r", writeMode);
 	if (r == E_SUCCESS) {
-		return new BadaFileStream(ioFile, writeMode);
+		stream = new BadaFileStream(ioFile, writeMode);
+	} else {
+		AppLog("Failed to open file");
+		delete ioFile;
+		stream = NULL;
 	}
-
-	AppLog("Failed to open file");
-	delete ioFile;
-	return 0;
-}
-
-//
-// converts a bada (wchar) String into a scummVM (char) string
-//
-Common::String fromString(const Tizen::Base::String &in) {
-	ByteBuffer *buf = StringUtil::StringToUtf8N(in);
-	Common::String result((const char*)buf->GetPointer());
-	delete buf;
-
-	return result;
+	return stream;
 }
 
 //
 // BadaFilesystemNode
 //
 BadaFilesystemNode::BadaFilesystemNode(const Common::String &nodePath) {
+	AppLog("BadaFilesystemNode '%s'", nodePath.c_str());
 	AppAssert(nodePath.size() > 0);
 	init(nodePath);
 }
 
+BadaFilesystemNode::BadaFilesystemNode(SystemPath systemPath) {
+	logEntered();
+	switch (systemPath) {
+	case kData:
+		_unicodePath = App::GetInstance()->GetAppDataPath();
+		_displayName = _s("Data");
+		break;
+	case kResource:
+		_unicodePath = App::GetInstance()->GetAppResourcePath();
+		_displayName = _s("Resources");
+		break;
+	case kSdCard:
+		_unicodePath = Tizen::System::Environment::GetExternalStoragePath();
+		_displayName = _s("SDCard");
+		break;
+	case kMedia:
+		_unicodePath = Tizen::System::Environment::GetMediaPath();
+		_displayName = _s("Media");
+		break;
+	case kShared:
+		_unicodePath = App::GetInstance()->GetAppSharedPath();
+		_displayName = _s("Shared");
+		break;
+	}
+	_path = ::fromString(_unicodePath);
+	_isValid = _isVirtualDir = !IsFailed(File::GetAttributes(_unicodePath, _attr));
+}
+
 BadaFilesystemNode::BadaFilesystemNode(const Common::String &root, const Common::String &nodePath) {
+	AppLog("BadaFilesystemNode '%s' '%s'", root.c_str(), nodePath.c_str());
+
 	// Make sure the string contains no slashes
 	AppAssert(!nodePath.contains('/'));
 
@@ -272,8 +303,7 @@ void BadaFilesystemNode::init(const Common::String &nodePath) {
 	_displayName = Common::lastPathComponent(_path, '/');
 
 	StringUtil::Utf8ToString(_path.c_str(), _unicodePath);
-	_isVirtualDir = (_path == PATH_ROOT ||
-                   _path == PATH_HOME);
+	_isVirtualDir = (_path == "/");
 	_isValid = _isVirtualDir || !IsFailed(File::GetAttributes(_unicodePath, _attr));
 }
 
@@ -290,9 +320,9 @@ bool BadaFilesystemNode::isDirectory() const {
 }
 
 bool BadaFilesystemNode::isWritable() const {
-	bool result = (_isValid && !_isVirtualDir && !_attr.IsDirectory() && !_attr.IsReadOnly());
-	if (_path == PATH_HOME) {
-		result = true;
+	bool result = (_isValid && !_attr.IsReadOnly());
+	if (_unicodePath == App::GetInstance()->GetAppResourcePath()) {
+		result = false;
 	}
 	return result;
 }
@@ -310,8 +340,12 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 
 	if (_isVirtualDir && mode != Common::FSNode::kListFilesOnly) {
 		// present well known BADA file system areas
-		if (_path == PATH_ROOT) {
-			myList.push_back(new BadaFilesystemNode(PATH_HOME));
+		if (_path == "/") {
+			myList.push_back(new BadaFilesystemNode(kData));
+			myList.push_back(new BadaFilesystemNode(kResource));
+			myList.push_back(new BadaFilesystemNode(kShared));
+			myList.push_back(new BadaFilesystemNode(kMedia));
+			myList.push_back(new BadaFilesystemNode(kShared));
 			result = true; // no more entries
 		}
 	}
@@ -351,7 +385,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 						(mode == Common::FSNode::kListDirectoriesOnly && !dirEntry.IsDirectory())) {
 					continue;
 				}
-				myList.push_back(new BadaFilesystemNode(_path, fromString(fileName)));
+				myList.push_back(new BadaFilesystemNode(_path, ::fromString(fileName)));
 			}
 		}
 
@@ -371,7 +405,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 
 AbstractFSNode *BadaFilesystemNode::getParent() const {
   logEntered();
-	if (_path == PATH_ROOT) {
+	if (_path == "/") {
 		return 0; // The filesystem root has no parent
 	}
 
@@ -389,7 +423,7 @@ AbstractFSNode *BadaFilesystemNode::getParent() const {
 		// there simply is no parent.
 		// TODO: We could also resolve this by assuming that the parent is the
 		//			 current working directory, and returning a node referring to that.
-		return 0;
+		return NULL;
 	}
 
 	return new BadaFilesystemNode(Common::String(start, end));

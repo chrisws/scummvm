@@ -48,8 +48,8 @@ using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::System;
 
+//#define DEFAULT_CONFIG_FILE "scummvm.ini"
 #define DEFAULT_CONFIG_FILE "/data/scummvm.ini"
-#define RESOURCE_PATH       "/res"
 #define MUTEX_BUFFER_SIZE 5
 
 //
@@ -66,7 +66,10 @@ AbstractFSNode *BadaFilesystemFactory::makeRootFileNode() const {
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	return new BadaFilesystemNode("/data");
+	logEntered();
+	//getDataFileNode();
+	//return new BadaFilesystemNode("/data");
+	return new BadaFilesystemNode(kData);
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeFileNodePath(const Common::String &path) const {
@@ -102,12 +105,12 @@ bool BadaSaveFileManager::removeSavefile(const Common::String &filename) {
 
 	case E_ILLEGAL_ACCESS:
 		setError(Common::kWritePermissionDenied, "Search or write permission denied: " +
-						 file.getName());
+					file.getName());
 		break;
 
 	default:
 		setError(Common::kPathDoesNotExist, "removeSavefile: '" + file.getName() +
-						 "' does not exist or path is invalid");
+					"' does not exist or path is invalid");
 		break;
 	}
 
@@ -225,6 +228,7 @@ result BadaSystem::Construct(void) {
 		return E_OUT_OF_MEMORY;
 	}
 
+	_resourcePath = fromString(App::GetInstance()->GetAppResourcePath());
 	return E_SUCCESS;
 }
 
@@ -289,10 +293,10 @@ void BadaSystem::initBackend() {
 	logEntered();
 
 	// use the mobile device theme
-	ConfMan.set("gui_theme", "/Res/scummmobile");
+	ConfMan.set("gui_theme", "/res/scummmobile");
 
 	// allow bada virtual keypad pack to be found
-	ConfMan.set("vkeybdpath", "/Res/vkeybd_bada");
+	ConfMan.set("vkeybdpath", "/res/vkeybd_bada");
 	ConfMan.set("vkeybd_pack_name", "vkeybd_bada");
 
 	// set default save path to writable area
@@ -319,7 +323,7 @@ void BadaSystem::initBackend() {
 
 	// replace kBigGUIFont using the large font from the scummmobile theme
 	Common::File fontFile;
-	Common::String fileName = "/Res/scummmobile/helvB14-iso-8859-1.fcc";
+	Common::String fileName = "/res/scummmobile/helvB14-iso-8859-1.fcc";
 	BadaFilesystemNode file(fileName);
 	if (file.exists()) {
 		Common::SeekableReadStream *stream = file.createReadStream();
@@ -337,7 +341,7 @@ void BadaSystem::initBackend() {
 
 void BadaSystem::addSysArchivesToSearchSet(Common::SearchSet &s, int priority) {
 	// allow translations.dat and game .DAT files to be found
-	s.addDirectory(RESOURCE_PATH, RESOURCE_PATH, priority);
+	s.addDirectory(_resourcePath, _resourcePath, priority);
 }
 
 void BadaSystem::destroyBackend() {
@@ -430,11 +434,15 @@ void BadaSystem::logMessage(LogMessageType::Type type, const char *message) {
 }
 
 Common::SeekableReadStream *BadaSystem::createConfigReadStream() {
+//	const Tizen::Base::String config = App::GetInstance()->GetAppDataPath() + DEFAULT_CONFIG_FILE;
+//	BadaFilesystemNode file(config, DEFAULT_CONFIG_FILE);
 	BadaFilesystemNode file(DEFAULT_CONFIG_FILE);
 	return file.createReadStream();
 }
 
 Common::WriteStream *BadaSystem::createConfigWriteStream() {
+//	const Tizen::Base::String config = App::GetInstance()->GetAppDataPath() + DEFAULT_CONFIG_FILE;
+//	BadaFilesystemNode file(config, DEFAULT_CONFIG_FILE);
 	BadaFilesystemNode file(DEFAULT_CONFIG_FILE);
 	return file.createWriteStream();
 }
@@ -501,13 +509,14 @@ BadaAppForm *systemStart(Tizen::App::Application *app) {
 	}
 
 	if (E_SUCCESS != appForm->Construct() ||
-		E_SUCCESS != app->GetAppFrame()->GetFrame()->AddControl(*appForm)) {
+		E_SUCCESS != appFrame->AddControl(*appForm)) {
 		delete appForm;
 		AppLog("Failed to construct appForm");
 		return NULL;
 	}
 
-	app->GetAppFrame()->GetFrame()->SetCurrentForm(appForm);
+	appFrame->SetCurrentForm(appForm);
+	appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 	logLeaving();
 	return appForm;
 }

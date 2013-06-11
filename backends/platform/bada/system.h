@@ -98,6 +98,7 @@ private:
 	BadaAppForm *_appForm;
 	AudioThread *_audioThread;
 	long long _epoch;
+	Common::String _resourcePath;
 };
 
 #endif

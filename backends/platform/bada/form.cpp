@@ -29,17 +29,16 @@
 #include "backends/platform/bada/form.h"
 #include "backends/platform/bada/system.h"
 
+using namespace Tizen::Base::Collection;
 using namespace Tizen::Base::Runtime;
-using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
-using namespace Tizen::Graphics;
 
 // number of volume levels
 #define LEVEL_RANGE 5
 
 // round down small Y touch values to 1 to allow the
 // cursor to be positioned at the top of the screen
-#define MIN_TOUCH_Y 10
+#define MIN_TOUCH_Y 20
 
 // block for up to 2.5 seconds during shutdown to
 // allow the game thread to exit gracefully.
@@ -50,6 +49,7 @@ using namespace Tizen::Graphics;
 // BadaAppForm
 //
 BadaAppForm::BadaAppForm() :
+	_gestureMode(false),
 	_osdMessage(NULL),
 	_gameThread(NULL),
 	_state(kInitState),
@@ -154,9 +154,11 @@ result BadaAppForm::OnInitializing(void) {
 
 	AddOrientationEventListener(*this);
 	AddTouchEventListener(*this);
-	AddKeyEventListener(*this);
+	SetMultipointTouchEnabled(true);
+	SetPropagatedKeyEventListener(this);
 
 	// set focus to enable receiving key events
+	SetEnabled(true);
 	SetFocusable(true);
 	SetFocus();
 
@@ -224,12 +226,10 @@ void BadaAppForm::pushKey(Common::KeyCode keycode) {
 	e.kbd.flags = 0;
 
 	_eventQueueLock->Acquire();
-
 	e.type = Common::EVENT_KEYDOWN;
 	_eventQueue.push(e);
 	e.type = Common::EVENT_KEYUP;
 	_eventQueue.push(e);
-
 	_eventQueueLock->Release();
 }
 
@@ -243,6 +243,7 @@ void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus 
 
 Tizen::Base::Object *BadaAppForm::Run() {
 	logEntered();
+
 	scummvm_main(0, 0);
 	if (_state == kActiveState) {
 		Tizen::App::Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
@@ -279,6 +280,7 @@ void BadaAppForm::setMessage(const char *message) {
 }
 
 void BadaAppForm::setShortcut() {
+	logEntered();
 	// cycle to the next shortcut
 	switch (_shortcut) {
 	case kControlMouse:
@@ -309,6 +311,7 @@ void BadaAppForm::setShortcut() {
 }
 
 void BadaAppForm::invokeShortcut() {
+	logEntered();
 	switch (_shortcut) {
 	case kControlMouse:
 		setButtonShortcut();
@@ -359,6 +362,15 @@ void BadaAppForm::showKeypad() {
 	pushKey(Common::KEYCODE_F7);
 }
 
+int BadaAppForm::getTouchCount() {
+	Tizen::Ui::TouchEventManager *touch = Tizen::Ui::TouchEventManager::GetInstance();
+	IListT<TouchEventInfo *> *touchList = touch->GetTouchInfoListN();
+	int touchCount = touchList->GetCount();
+	touchList->RemoveAll();
+	delete touchList;
+	return touchCount;
+}
+
 void BadaAppForm::OnTouchDoublePressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	if (_buttonState != kMoveOnly) {
@@ -379,6 +391,7 @@ void BadaAppForm::OnTouchFocusOut(const Control &source,
 
 void BadaAppForm::OnTouchLongPressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
+	logEntered();
 	if (_buttonState != kLeftButton) {
 		pushKey(Common::KEYCODE_RETURN);
 	}
@@ -386,12 +399,16 @@ void BadaAppForm::OnTouchLongPressed(const Control &source,
 
 void BadaAppForm::OnTouchMoved(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
-	pushEvent(Common::EVENT_MOUSEMOVE, currentPosition);
+	if (!_gestureMode) {
+	  pushEvent(Common::EVENT_MOUSEMOVE, currentPosition);
+	}
 }
 
 void BadaAppForm::OnTouchPressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
-	if (_buttonState != kMoveOnly) {
+	if (getTouchCount() > 1) {
+		_gestureMode = true;
+	} else if (_buttonState != kMoveOnly) {
 		pushEvent(_buttonState == kLeftButton ? Common::EVENT_LBUTTONDOWN : Common::EVENT_RBUTTONDOWN,
 							currentPosition);
 	}
@@ -399,7 +416,16 @@ void BadaAppForm::OnTouchPressed(const Control &source,
 
 void BadaAppForm::OnTouchReleased(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
-	if (_buttonState != kMoveOnly) {
+	if (_gestureMode) {
+		int touchCount = getTouchCount();
+		if (touchCount == 1) {
+			setShortcut();
+		} else if (touchCount == 2) {
+			invokeShortcut();
+		} else {
+			_gestureMode = false;
+		}
+	} else if (_buttonState != kMoveOnly) {
 		pushEvent(_buttonState == kLeftButton ? Common::EVENT_LBUTTONUP : Common::EVENT_RBUTTONUP,
 							currentPosition);
 		if (_buttonState == kRightButtonOnce) {
@@ -412,48 +438,41 @@ void BadaAppForm::OnTouchReleased(const Control &source,
 	}
 }
 
-void BadaAppForm::OnKeyLongPressed(const Control &source, KeyCode keyCode) {
+bool BadaAppForm::OnKeyPressed(Control &source, const KeyEventInfo &keyEventInfo) {
 	logEntered();
-	switch (keyCode) {
-	case KEY_SIDE_UP:
-		_shortcut = kSetVolume;
-		setVolume(true, true);
-		return;
-
-	case KEY_SIDE_DOWN:
-		_shortcut = kSetVolume;
-		setVolume(false, true);
-		return;
-
-	default:
-		break;
-	}
-}
-
-void BadaAppForm::OnKeyPressed(const Control &source, KeyCode keyCode) {
-	switch (keyCode) {
+	bool result = false;
+	switch (keyEventInfo.GetKeyCode()) {
 	case KEY_SIDE_UP:
 		if (gameActive()) {
-		  setShortcut();
-		  ((Control &) source).ConsumeInputEvent();
-		}
-		return;
-
-	case KEY_SIDE_DOWN:
-		if (gameActive()) {
-		  invokeShortcut();
-		  ((Control &) source).ConsumeInputEvent();
+			setShortcut();
+			result = true;
 		}
 		break;
 
-	case KEY_CAMERA:
-		showKeypad();
+	case KEY_SIDE_DOWN:
+		if (gameActive()) {
+			invokeShortcut();
+			result = true;
+		}
 		break;
 
 	default:
 		break;
 	}
+	return result;
 }
 
-void BadaAppForm::OnKeyReleased(const Control &source, KeyCode keyCode) {
+bool BadaAppForm::OnKeyReleased(Control &source, const KeyEventInfo &keyEventInfo) {
+	logEntered();
+	return true;
+}
+
+bool BadaAppForm::OnPreviewKeyPressed(Control &source, const KeyEventInfo &keyEventInfo) {
+	logEntered();
+	return true;
+}
+
+bool BadaAppForm::OnPreviewKeyReleased(Control &source, const KeyEventInfo &keyEventInfo) {
+	logEntered();
+	return true;
 }

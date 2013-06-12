@@ -321,7 +321,7 @@ void BadaSystem::initBackend() {
 
 		// replace kBigGUIFont using the large font from the scummmobile theme
 		Common::File fontFile;
-		Common::String fileName = resourcePath + "scummmobile/helvB14-iso-8859-1.fcc";
+		Common::String fileName = resourcePath + "fonts/helvB14-iso-8859-1.fcc";
 		BadaFilesystemNode file(fileName);
 		if (file.exists()) {
 			Common::SeekableReadStream *stream = file.createReadStream();

@@ -253,7 +253,6 @@ BadaFilesystemNode::BadaFilesystemNode(const Common::String &nodePath) {
 }
 
 BadaFilesystemNode::BadaFilesystemNode(SystemPath systemPath) {
-	logEntered();
 	switch (systemPath) {
 	case kData:
 		_unicodePath = App::GetInstance()->GetAppDataPath();

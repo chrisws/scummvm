@@ -37,18 +37,22 @@
 #include "common/mutex.h"
 #include "engines/engine.h"
 
+using namespace Tizen::Ui;
+using namespace Tizen::Graphics;
+
 //
 // BadaAppForm
 //
 class BadaAppForm :
-	public Tizen::Ui::Controls::Form,
+	public Controls::Form,
 	public Tizen::Base::Runtime::IRunnable,
-	public Tizen::Ui::IOrientationEventListener,
-	public Tizen::Ui::ITouchEventListener,
-	public Tizen::Ui::IKeyEventListener {
+	public IOrientationEventListener,
+	public ITouchEventListener,
+	public IPropagatedKeyEventListener {
+
 public:
 	BadaAppForm();
-	~BadaAppForm();
+	virtual ~BadaAppForm();
 
 	result Construct();
 	bool pollEvent(Common::Event &event);
@@ -60,34 +64,35 @@ private:
 	Tizen::Base::Object *Run();
 	result OnInitializing(void);
 	result OnDraw(void);
-	void OnOrientationChanged(const Tizen::Ui::Control &source,
-			Tizen::Ui::OrientationStatus orientationStatus);
-	void OnTouchDoublePressed(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchFocusIn(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchFocusOut(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchLongPressed(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchMoved(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchPressed(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnTouchReleased(const Tizen::Ui::Control &source,
-			const Tizen::Graphics::Point &currentPosition,
-			const Tizen::Ui::TouchEventInfo &touchInfo);
-	void OnKeyLongPressed(const Tizen::Ui::Control &source,	Tizen::Ui::KeyCode keyCode);
-	void OnKeyPressed(const Tizen::Ui::Control &source,	Tizen::Ui::KeyCode keyCode);
-	void OnKeyReleased(const Tizen::Ui::Control &source, Tizen::Ui::KeyCode keyCode);
+	void OnOrientationChanged(const Control &source,
+			OrientationStatus orientationStatus);
+	void OnTouchDoublePressed(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchFocusIn(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchFocusOut(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchLongPressed(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchMoved(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchPressed(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	void OnTouchReleased(const Control &source,
+			const Point &currentPosition,
+			const TouchEventInfo &touchInfo);
+	bool OnKeyPressed(Control &source, const KeyEventInfo &keyEventInfo);
+	bool OnKeyReleased(Control &source, const KeyEventInfo &keyEventInfo);
+	bool OnPreviewKeyPressed(Control &source, const KeyEventInfo &keyEventInfo);
+	bool OnPreviewKeyReleased(Control &source, const KeyEventInfo &keyEventInfo);
 
-	void pushEvent(Common::EventType type, const Tizen::Graphics::Point &currentPosition);
+	void pushEvent(Common::EventType type, const Point &currentPosition);
 	void terminate();
 	void setButtonShortcut();
 	void setMessage(const char *message);
@@ -96,9 +101,11 @@ private:
 	void showKeypad();
 	void showLevel(int level);
 	void invokeShortcut();
+	int  getTouchCount();
 	bool gameActive() { return _state == kActiveState && g_engine != NULL && !g_engine->isPaused(); }
 
 	// event handling
+	bool _gestureMode;
 	const char *_osdMessage;
 	Tizen::Base::Runtime::Thread *_gameThread;
 	Tizen::Base::Runtime::Mutex *_eventQueueLock;

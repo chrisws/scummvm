@@ -44,7 +44,7 @@ class BadaScummVM :
 
 public:
 	BadaScummVM();
-	~BadaScummVM();
+	virtual ~BadaScummVM();
 
 	static UiApp *createInstance(void);
 

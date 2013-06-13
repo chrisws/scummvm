@@ -26,12 +26,12 @@
 #include "backends/platform/bada/audio.h"
 #include "backends/platform/bada/system.h"
 
-#define TIMER_INCREMENT		 10
-#define TIMER_INTERVAL		 40
-#define MIN_TIMER_INTERVAL 10
-#define MAX_TIMER_INTERVAL 160
-#define INIT_LEVEL				 3
-#define CONFIG_KEY				 L"audiovol"
+#define TIMER_INCREMENT     5
+#define TIMER_INTERVAL      40
+#define MIN_TIMER_INTERVAL  5
+#define MAX_TIMER_INTERVAL  160
+#define INIT_LEVEL          3
+#define CONFIG_KEY          L"audiovol"
 
 // sound level pre-sets
 const int levels[] = {0, 1, 10, 45, 70, 99};
@@ -150,8 +150,7 @@ bool AudioThread::OnStart(void) {
 	}
 
 	if (IsFailed(_audioOut->Prepare(AUDIO_TYPE_PCM_S16_LE,
-																 AUDIO_CHANNEL_TYPE_STEREO,
-																 sampleRate))) {
+			AUDIO_CHANNEL_TYPE_STEREO, sampleRate))) {
 		AppLog("Failed to prepare AudioOut %d", sampleRate);
 		return false;
 	}
@@ -263,4 +262,3 @@ void AudioThread::OnTimerExpired(Timer &timer) {
 
 	_timer->Start(_interval);
 }
-

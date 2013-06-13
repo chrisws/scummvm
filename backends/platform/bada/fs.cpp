@@ -255,23 +255,23 @@ BadaFilesystemNode::BadaFilesystemNode(SystemPath systemPath) {
 	switch (systemPath) {
 	case kData:
 		_unicodePath = App::GetInstance()->GetAppDataPath();
-		_displayName = _s("Data");
+		_displayName = _s("[ Data ]");
 		break;
 	case kResource:
 		_unicodePath = App::GetInstance()->GetAppResourcePath();
-		_displayName = _s("Resources");
+		_displayName = _s("[ Resources ]");
 		break;
 	case kSdCard:
 		_unicodePath = Tizen::System::Environment::GetExternalStoragePath();
-		_displayName = _s("SDCard");
+		_displayName = _s("[ SDCard ]");
 		break;
 	case kMedia:
 		_unicodePath = Tizen::System::Environment::GetMediaPath();
-		_displayName = _s("Media");
+		_displayName = _s("[ Media ]");
 		break;
 	case kShared:
 		_unicodePath = App::GetInstance()->GetAppSharedPath();
-		_displayName = _s("Shared");
+		_displayName = _s("[ Shared ]");
 		break;
 	}
 	_path = ::fromString(_unicodePath);
@@ -336,16 +336,13 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 
 	bool result = false;
 
-	if (_isVirtualDir && mode != Common::FSNode::kListFilesOnly) {
+	if (_isVirtualDir && mode != Common::FSNode::kListFilesOnly && _path == "/") {
 		// present well known BADA file system areas
-		if (_path == "/") {
-			myList.push_back(new BadaFilesystemNode(kData));
-			myList.push_back(new BadaFilesystemNode(kResource));
-			myList.push_back(new BadaFilesystemNode(kSdCard));
-			myList.push_back(new BadaFilesystemNode(kMedia));
-			myList.push_back(new BadaFilesystemNode(kShared));
-			result = true; // no more entries
-		}
+		myList.push_back(new BadaFilesystemNode(kData));
+		myList.push_back(new BadaFilesystemNode(kResource));
+		myList.push_back(new BadaFilesystemNode(kSdCard));
+		myList.push_back(new BadaFilesystemNode(kMedia));
+		myList.push_back(new BadaFilesystemNode(kShared));
 	}
 
 	if (!result) {

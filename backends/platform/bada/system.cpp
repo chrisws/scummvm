@@ -65,7 +65,7 @@ AbstractFSNode *BadaFilesystemFactory::makeRootFileNode() const {
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	return new BadaFilesystemNode(kData);
+	return new BadaFilesystemNode("/");
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeFileNodePath(const Common::String &path) const {

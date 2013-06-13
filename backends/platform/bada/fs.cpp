@@ -247,7 +247,6 @@ BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode)
 // BadaFilesystemNode
 //
 BadaFilesystemNode::BadaFilesystemNode(const Common::String &nodePath) {
-	AppLog("BadaFilesystemNode '%s'", nodePath.c_str());
 	AppAssert(nodePath.size() > 0);
 	init(nodePath);
 }

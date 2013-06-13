@@ -70,7 +70,6 @@ HelvB14 font files:
  $ ./ucs2any.pl 100dpi/helvB14.bdf MAPPINGS/8859-1.TXT iso8859-1 \
    MAPPINGS/8859-2.TXT iso8859-2 MAPPINGS/8859-3.TXT iso8859-3
 
-
 =====================================================================
 Archived build instruction for BADA/cygwin
 

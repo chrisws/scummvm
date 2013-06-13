@@ -420,9 +420,10 @@ void BadaAppForm::OnTouchReleased(const Control &source,
 		int touchCount = getTouchCount();
 		if (touchCount == 1) {
 			setShortcut();
-		} else if (touchCount == 2) {
-			invokeShortcut();
 		} else {
+			if (touchCount == 2) {
+				invokeShortcut();
+			}
 			_gestureMode = false;
 		}
 	} else if (_buttonState != kMoveOnly) {

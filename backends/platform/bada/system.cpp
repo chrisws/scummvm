@@ -65,7 +65,6 @@ AbstractFSNode *BadaFilesystemFactory::makeRootFileNode() const {
 }
 
 AbstractFSNode *BadaFilesystemFactory::makeCurrentDirectoryFileNode() const {
-	logEntered();
 	return new BadaFilesystemNode(kData);
 }
 
@@ -290,6 +289,7 @@ void BadaSystem::initBackend() {
 	logEntered();
 
 	Common::String resourcePath = fromString(App::GetInstance()->GetAppResourcePath());
+	Common::String dataPath = fromString(App::GetInstance()->GetAppDataPath());
 
 	// use the mobile device theme
 	ConfMan.set("gui_theme", resourcePath + "scummmodern");
@@ -300,7 +300,7 @@ void BadaSystem::initBackend() {
 
 	// set default save path to writable area
 	if (!ConfMan.hasKey("savepath")) {
-		ConfMan.set("savepath", fromString(App::GetInstance()->GetAppDataPath()));
+		ConfMan.set("savepath", dataPath);
 	}
 
 	// default to no auto-save
@@ -319,22 +319,32 @@ void BadaSystem::initBackend() {
 	} else {
 		OSystem::initBackend();
 
-		// replace kBigGUIFont using the large font from the scummmobile theme
-		Common::File fontFile;
-		Common::String fileName = resourcePath + "fonts/helvB14-iso-8859-1.fcc";
-		BadaFilesystemNode file(fileName);
-		if (file.exists()) {
+		// replace kBigGUIFont for the vkbd and on-screen messages
+		Common::String fontCacheFile = dataPath + "helvB24.fcc";
+		BadaFilesystemNode file(fontCacheFile);
+		if (!file.exists()) {
+			Common::String bdfFile = resourcePath + "fonts/helvB24.bdf";
+			BadaFilesystemNode file(bdfFile);
+			if (file.exists()) {
+				Common::SeekableReadStream *stream = file.createReadStream();
+				Common::File fontFile;
+				if (stream && fontFile.open(stream, bdfFile)) {
+					Graphics::BdfFont *font = Graphics::BdfFont::loadFont(fontFile);
+					Graphics::BdfFont::cacheFontData(*font, fontCacheFile);
+					FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
+				}
+			}
+		} else {
 			Common::SeekableReadStream *stream = file.createReadStream();
-			if (stream && fontFile.open(stream, fileName)) {
+			Common::File fontFile;
+			if (stream && fontFile.open(stream, fontCacheFile)) {
 				Graphics::BdfFont *font = Graphics::BdfFont::loadFromCache(fontFile);
 				if (font) {
-					// use this font for the vkbd and on-screen messages
 					FontMan.setFont(Graphics::FontManager::kBigGUIFont, font);
 				}
 			}
 		}
 	}
-
 	logLeaving();
 }
 

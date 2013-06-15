@@ -50,10 +50,9 @@
 BadaAppForm *systemStart(Tizen::App::Application *app);
 void systemError(const char *message);
 
-#define USER_MESSAGE_EXIT				1000
-#define USER_MESSAGE_EXIT_ERR			1001
-#define USER_MESSAGE_EXIT_ERR_CONFIG	1002
-#define USER_MESSAGE_STARTUP            1003
+#define USER_MESSAGE_EXIT		1000
+#define USER_MESSAGE_EXIT_ERR		1001
+#define USER_MESSAGE_EXIT_ERR_CONFIG 1002
 
 //
 // BadaSystem

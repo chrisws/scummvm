@@ -41,9 +41,11 @@ using namespace Tizen::Io;
 
 #define NUM_AUDIO_BUFFERS 2
 
-class AudioThread: public Tizen::Media::IAudioOutEventListener,
-									 public Tizen::Base::Runtime::ITimerEventListener,
-									 public Tizen::Base::Runtime::EventDrivenThread {
+class AudioThread:
+	public Tizen::Media::IAudioOutEventListener,
+	public Tizen::Base::Runtime::ITimerEventListener,
+	public Tizen::Base::Runtime::EventDrivenThread {
+
 public:
 	AudioThread(void);
 	~AudioThread(void);
@@ -51,8 +53,6 @@ public:
 	Audio::MixerImpl *Construct(OSystem *system);
 	bool isSilentMode();
 	void setMute(bool on);
-	int setVolume(bool up, bool minMax);
-	int getLevel();
 
 	bool OnStart(void);
 	void OnStop(void);

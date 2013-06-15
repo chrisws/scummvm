@@ -178,7 +178,7 @@ bool BadaGraphicsManager::loadGFXMode() {
 	_appForm->GetBounds(x, y, width, height);
 	_videoMode.overlayWidth = _videoMode.hardwareWidth = width;
 	_videoMode.overlayHeight = _videoMode.hardwareHeight = height;
-	_videoMode.scaleFactor = 3; // for proportional sized cursor in the launcher
+	_videoMode.scaleFactor = 4; // for proportional sized cursor in the launcher
 
 	AppLog("screen size: %dx%d", _videoMode.hardwareWidth, _videoMode.hardwareHeight);
 	return OpenGLGraphicsManager::loadGFXMode();

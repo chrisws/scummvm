@@ -53,6 +53,7 @@ void systemError(const char *message);
 #define USER_MESSAGE_EXIT				1000
 #define USER_MESSAGE_EXIT_ERR			1001
 #define USER_MESSAGE_EXIT_ERR_CONFIG	1002
+#define USER_MESSAGE_STARTUP            1003
 
 //
 // BadaSystem
@@ -69,8 +70,6 @@ public:
 	void closeGraphics();
 	void destroyBackend();
 	void setMute(bool on);
-	int setVolume(bool up, bool minMax);
-	int getLevel();
 	void exitSystem();
 	bool isClosing() { return _appForm->isClosing(); }
 

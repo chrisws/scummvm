@@ -208,6 +208,22 @@ int BadaEventManager::shouldQuit() const {
 }
 
 //
+// BadaAppFrame - avoid drawing the misplaced UiTheme at startup
+//
+struct BadaAppFrame : Frame {
+	result OnDraw(void) {
+		logEntered();
+		BadaAppForm *form = (BadaAppForm *)GetCurrentForm();
+		if (form->isStarting()) {
+			Canvas *canvas = GetCanvasN();
+			canvas->SetBackgroundColor(Color::GetColor(COLOR_ID_BLACK));
+			canvas->Clear();
+		}
+		return E_SUCCESS;
+	}
+};
+
+//
 // BadaSystem
 //
 BadaSystem::BadaSystem(BadaAppForm *appForm) :
@@ -320,10 +336,10 @@ void BadaSystem::initBackend() {
 		OSystem::initBackend();
 
 		// replace kBigGUIFont for the vkbd and on-screen messages
-		Common::String fontCacheFile = dataPath + "helvB24.fcc";
+		Common::String fontCacheFile = dataPath + "helvR24.fcc";
 		BadaFilesystemNode file(fontCacheFile);
 		if (!file.exists()) {
-			Common::String bdfFile = resourcePath + "fonts/helvB24.bdf";
+			Common::String bdfFile = resourcePath + "fonts/helvR24.bdf";
 			BadaFilesystemNode file(bdfFile);
 			if (file.exists()) {
 				Common::SeekableReadStream *stream = file.createReadStream();
@@ -478,29 +494,13 @@ void BadaSystem::setMute(bool on) {
 	}
 }
 
-int BadaSystem::setVolume(bool up, bool minMax) {
-	int level = -1;
-	if (_audioThread) {
-		level = _audioThread->setVolume(up, minMax);
-	}
-	return level;
-}
-
-int BadaSystem::getLevel() {
-	int level = 0;
-	if (_audioThread) {
-		level = _audioThread->getLevel();
-	}
-	return level;
-}
-
 //
 // create the ScummVM system
 //
 BadaAppForm *systemStart(Tizen::App::Application *app) {
 	logEntered();
 
-	Frame *appFrame = new (std::nothrow) Frame();
+	Frame *appFrame = new (std::nothrow) BadaAppFrame();
 	if (!appFrame || appFrame->Construct() == E_FAILURE) {
 		AppLog("Failed to create appFrame");
 		return NULL;
@@ -521,7 +521,6 @@ BadaAppForm *systemStart(Tizen::App::Application *app) {
 	}
 
 	appFrame->SetCurrentForm(appForm);
-	appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 	logLeaving();
 	return appForm;
 }

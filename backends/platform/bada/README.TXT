@@ -44,7 +44,7 @@ export CFLAGS=${CPPFLAGS}
 
 4. Build the ScummVM base library:
 
-  ./configure --host=tizen --enable-release
+  ./configure --host=tizen --enable-release --with-freetype2-prefix=${TIZEN_LIBS}/bin
 
   For development:
 

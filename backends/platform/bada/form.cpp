@@ -33,9 +33,6 @@ using namespace Tizen::Base::Collection;
 using namespace Tizen::Base::Runtime;
 using namespace Tizen::Ui::Controls;
 
-// number of volume levels
-#define LEVEL_RANGE 5
-
 // round down small Y touch values to 1 to allow the
 // cursor to be positioned at the top of the screen
 #define MIN_TOUCH_Y 20
@@ -52,11 +49,10 @@ BadaAppForm::BadaAppForm() :
 	_gestureMode(false),
 	_osdMessage(NULL),
 	_gameThread(NULL),
+	_eventQueueLock(NULL),
 	_state(kInitState),
 	_buttonState(kLeftButton),
-	_shortcut(kSetVolume) {
-	_eventQueueLock = new Mutex();
-	_eventQueueLock->Create();
+	_shortcut(kShowKeypad) {
 }
 
 result BadaAppForm::Construct() {
@@ -77,9 +73,17 @@ result BadaAppForm::Construct() {
 		r = _gameThread->Construct(*this);
 	}
 	if (!IsFailed(r)) {
-		g_system = badaSystem;
+		_eventQueueLock = new Mutex();
+		r = _eventQueueLock != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
 	}
-	else {
+	if (!IsFailed(r)) {
+		r = _eventQueueLock->Create();
+	}
+
+	if (!IsFailed(r)) {
+		g_system = badaSystem;
+	} else {
+		AppLog("Form startup failed");
 		delete badaSystem;
 		delete _gameThread;
 		_gameThread = NULL;
@@ -102,10 +106,8 @@ BadaAppForm::~BadaAppForm() {
 		_gameThread = NULL;
 	}
 
-	if (_eventQueueLock) {
-		delete _eventQueueLock;
-		_eventQueueLock = NULL;
-	}
+	delete _eventQueueLock;
+	_eventQueueLock = NULL;
 
 	logLeaving();
 }
@@ -155,7 +157,6 @@ result BadaAppForm::OnInitializing(void) {
 	AddOrientationEventListener(*this);
 	AddTouchEventListener(*this);
 	SetMultipointTouchEnabled(true);
-	SetPropagatedKeyEventListener(this);
 
 	// set focus to enable receiving key events
 	SetEnabled(true);
@@ -168,6 +169,25 @@ result BadaAppForm::OnInitializing(void) {
 result BadaAppForm::OnDraw(void) {
 	logEntered();
 	return E_SUCCESS;
+}
+
+void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus orientationStatus) {
+	logEntered();
+	if (_state == kInitState) {
+		_state = kActiveState;
+		_gameThread->Start();
+	}
+}
+
+Tizen::Base::Object *BadaAppForm::Run() {
+	logEntered();
+
+	scummvm_main(0, 0);
+	if (_state == kActiveState) {
+		Tizen::App::Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
+	}
+	_state = kDoneState;
+	return NULL;
 }
 
 bool BadaAppForm::pollEvent(Common::Event &event) {
@@ -219,37 +239,20 @@ void BadaAppForm::pushEvent(Common::EventType type, const Point &currentPosition
 }
 
 void BadaAppForm::pushKey(Common::KeyCode keycode) {
-	Common::Event e;
-	e.synthetic = false;
-	e.kbd.keycode = keycode;
-	e.kbd.ascii = keycode;
-	e.kbd.flags = 0;
+	if (_eventQueueLock) {
+		Common::Event e;
+		e.synthetic = false;
+		e.kbd.keycode = keycode;
+		e.kbd.ascii = keycode;
+		e.kbd.flags = 0;
 
-	_eventQueueLock->Acquire();
-	e.type = Common::EVENT_KEYDOWN;
-	_eventQueue.push(e);
-	e.type = Common::EVENT_KEYUP;
-	_eventQueue.push(e);
-	_eventQueueLock->Release();
-}
-
-void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus orientationStatus) {
-	logEntered();
-	if (_state == kInitState) {
-		_state = kActiveState;
-		_gameThread->Start();
+		_eventQueueLock->Acquire();
+		e.type = Common::EVENT_KEYDOWN;
+		_eventQueue.push(e);
+		e.type = Common::EVENT_KEYUP;
+		_eventQueue.push(e);
+		_eventQueueLock->Release();
 	}
-}
-
-Tizen::Base::Object *BadaAppForm::Run() {
-	logEntered();
-
-	scummvm_main(0, 0);
-	if (_state == kActiveState) {
-		Tizen::App::Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT, NULL);
-	}
-	_state = kDoneState;
-	return NULL;
 }
 
 void BadaAppForm::setButtonShortcut() {
@@ -274,9 +277,11 @@ void BadaAppForm::setButtonShortcut() {
 }
 
 void BadaAppForm::setMessage(const char *message) {
-	_eventQueueLock->Acquire();
-	_osdMessage = message;
-	_eventQueueLock->Release();
+	if (_eventQueueLock) {
+		_eventQueueLock->Acquire();
+		_osdMessage = message;
+		_eventQueueLock->Release();
+	}
 }
 
 void BadaAppForm::setShortcut() {
@@ -299,11 +304,6 @@ void BadaAppForm::setShortcut() {
 		break;
 
 	case kShowKeypad:
-		showLevel(((BadaSystem *)g_system)->getLevel());
-		_shortcut = kSetVolume;
-		break;
-
-	case kSetVolume:
 		setMessage(_s("Control Mouse"));
 		_shortcut = kControlMouse;
 		break;
@@ -329,31 +329,7 @@ void BadaAppForm::invokeShortcut() {
 	case kShowKeypad:
 		showKeypad();
 		break;
-		
-	case kSetVolume:
-		setVolume(true, false);
-		break;
-	}
-}
-
-void BadaAppForm::setVolume(bool up, bool minMax) {
-	int level = ((BadaSystem *)g_system)->setVolume(up, minMax);
-	if (level != -1) {
-		showLevel(level);
-	}
-}
-
-void BadaAppForm::showLevel(int level) {
-	static char levelMessage[32];
-	char ind[LEVEL_RANGE]; // 1..5 (0=off)
-	int j = LEVEL_RANGE - 1; // 0..4
-	for (int i = 1; i <= LEVEL_RANGE; i++) {
-		ind[j--] = level >= i ? '|' : ' ';
-	}
-	snprintf(levelMessage, sizeof(levelMessage), 
-			"Volume: [ %c%c%c%c%c ]",
-			ind[0], ind[1], ind[2], ind[3], ind[4]);
-	setMessage(levelMessage);
+  }
 }
 
 void BadaAppForm::showKeypad() {
@@ -439,41 +415,3 @@ void BadaAppForm::OnTouchReleased(const Control &source,
 	}
 }
 
-bool BadaAppForm::OnKeyPressed(Control &source, const KeyEventInfo &keyEventInfo) {
-	logEntered();
-	bool result = false;
-	switch (keyEventInfo.GetKeyCode()) {
-	case KEY_SIDE_UP:
-		if (gameActive()) {
-			setShortcut();
-			result = true;
-		}
-		break;
-
-	case KEY_SIDE_DOWN:
-		if (gameActive()) {
-			invokeShortcut();
-			result = true;
-		}
-		break;
-
-	default:
-		break;
-	}
-	return result;
-}
-
-bool BadaAppForm::OnKeyReleased(Control &source, const KeyEventInfo &keyEventInfo) {
-	logEntered();
-	return true;
-}
-
-bool BadaAppForm::OnPreviewKeyPressed(Control &source, const KeyEventInfo &keyEventInfo) {
-	logEntered();
-	return true;
-}
-
-bool BadaAppForm::OnPreviewKeyReleased(Control &source, const KeyEventInfo &keyEventInfo) {
-	logEntered();
-	return true;
-}

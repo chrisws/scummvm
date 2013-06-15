@@ -26,15 +26,8 @@
 #include "backends/platform/bada/audio.h"
 #include "backends/platform/bada/system.h"
 
-#define TIMER_INCREMENT     5
-#define TIMER_INTERVAL      40
-#define MIN_TIMER_INTERVAL  5
-#define MAX_TIMER_INTERVAL  160
-#define INIT_LEVEL          3
-#define CONFIG_KEY          L"audiovol"
-
-// sound level pre-sets
-const int levels[] = {0, 1, 10, 45, 70, 99};
+#define TIMER_INTERVAL 10
+#define VOLUME 99
 
 AudioThread::AudioThread() :
 	_mixer(0),
@@ -82,62 +75,11 @@ void AudioThread::setMute(bool on) {
 	}
 }
 
-int AudioThread::setVolume(bool up, bool minMax) {
-	int level = -1;
-	int numLevels = sizeof(levels) / sizeof(levels[0]);
-
-	if (_audioOut) {
-		int volume = _audioOut->GetVolume();
-		if (minMax) {
-			level = up ? numLevels - 1 : 0;
-			volume = levels[level];
-		} else {
-			// adjust volume to be one of the preset values
-			for (int i = 0; i < numLevels && level == -1; i++) {
-				if (volume == levels[i]) {
-					level = (i + 1) % numLevels;
-				}
-			}
-
-			// default to INIT_LEVEL when current not preset value
-			if (level == -1) {
-				level = INIT_LEVEL;
-			}
-			volume = levels[level];
-		}
-
-		_audioOut->SetVolume(volume);
-
-		// remember the chosen setting
-		AppRegistry *registry = Application::GetInstance()->GetAppRegistry();
-		if (registry) {
-			registry->Set(CONFIG_KEY, volume);
-		}
-	}
-	return level;
-}
-
-int AudioThread::getLevel() {
-	int level = 0;
-	int numLevels = sizeof(levels) / sizeof(levels[0]);
-
-	if (_audioOut) {
-		int volume = _audioOut->GetVolume();
-		for (int i = 0; i < numLevels && level == 0; i++) {
-			if (volume == levels[i]) {
-				level = i;
-			}
-		}
-	}
-	return level;
-}
-
 bool AudioThread::OnStart(void) {
 	logEntered();
 
 	_audioOut = new Tizen::Media::AudioOut();
-	if (!_audioOut ||
-			IsFailed(_audioOut->Construct(*this))) {
+	if (!_audioOut || IsFailed(_audioOut->Construct(*this))) {
 		AppLog("Failed to create AudioOut");
 		return false;
 	}
@@ -174,21 +116,9 @@ bool AudioThread::OnStart(void) {
 		return false;
 	}
 
-	// get the volume from the app-registry
-	int volume = levels[INIT_LEVEL];
-	AppRegistry *registry = Application::GetInstance()->GetAppRegistry();
-	if (registry) {
-		if (E_KEY_NOT_FOUND == registry->Get(CONFIG_KEY, volume)) {
-			registry->Add(CONFIG_KEY, volume);
-			volume = levels[INIT_LEVEL];
-		} else {
-			AppLog("Setting volume: %d", volume);
-		}
-	}
-
 	_muted = false;
 	_mixer->setReady(true);
-	_audioOut->SetVolume(isSilentMode() ? 0 : volume);
+	_audioOut->SetVolume(isSilentMode() ? 0 : VOLUME);
 	_audioOut->Start();
 	return true;
 }
@@ -233,10 +163,6 @@ void AudioThread::OnAudioOutBufferEndReached(Tizen::Media::AudioOut &src) {
 	} else {
 		// audio buffer empty: decrease timer inverval
 		_playing = -1;
-		_interval -= TIMER_INCREMENT;
-		if (_interval < MIN_TIMER_INTERVAL) {
-			_interval = MIN_TIMER_INTERVAL;
-		}
 	}
 }
 
@@ -247,12 +173,6 @@ void AudioThread::OnTimerExpired(Timer &timer) {
 		if (samples) {
 			_head = (_head + 1) % NUM_AUDIO_BUFFERS;
 			_ready++;
-		}
-	} else {
-		// audio buffer full: increase timer inverval
-		_interval += TIMER_INCREMENT;
-		if (_interval > MAX_TIMER_INTERVAL) {
-			_interval = MAX_TIMER_INTERVAL;
 		}
 	}
 

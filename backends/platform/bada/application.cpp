@@ -47,6 +47,7 @@ BadaScummVM::~BadaScummVM() {
 
 bool BadaScummVM::OnAppInitialized(void) {
 	logEntered();
+	_appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 	return true;
 }
 

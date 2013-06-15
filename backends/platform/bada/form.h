@@ -39,16 +39,16 @@
 
 using namespace Tizen::Ui;
 using namespace Tizen::Graphics;
+using namespace Tizen::Base::Runtime;
 
 //
 // BadaAppForm
 //
 class BadaAppForm :
 	public Controls::Form,
-	public Tizen::Base::Runtime::IRunnable,
+	public IRunnable,
 	public IOrientationEventListener,
-	public ITouchEventListener,
-	public IPropagatedKeyEventListener {
+  public ITouchEventListener {
 
 public:
 	BadaAppForm();
@@ -57,6 +57,7 @@ public:
 	result Construct();
 	bool pollEvent(Common::Event &event);
 	bool isClosing() { return _state == kClosingState; }
+	bool isStarting() { return _state == kInitState; }
 	void pushKey(Common::KeyCode keycode);
 	void exitSystem();
 
@@ -87,19 +88,13 @@ private:
 	void OnTouchReleased(const Control &source,
 			const Point &currentPosition,
 			const TouchEventInfo &touchInfo);
-	bool OnKeyPressed(Control &source, const KeyEventInfo &keyEventInfo);
-	bool OnKeyReleased(Control &source, const KeyEventInfo &keyEventInfo);
-	bool OnPreviewKeyPressed(Control &source, const KeyEventInfo &keyEventInfo);
-	bool OnPreviewKeyReleased(Control &source, const KeyEventInfo &keyEventInfo);
 
 	void pushEvent(Common::EventType type, const Point &currentPosition);
 	void terminate();
 	void setButtonShortcut();
 	void setMessage(const char *message);
 	void setShortcut();
-	void setVolume(bool up, bool minMax);
 	void showKeypad();
-	void showLevel(int level);
 	void invokeShortcut();
 	int  getTouchCount();
 	bool gameActive() { return _state == kActiveState && g_engine != NULL && !g_engine->isPaused(); }
@@ -112,7 +107,7 @@ private:
 	Common::Queue<Common::Event> _eventQueue;
 	enum { kInitState, kActiveState, kClosingState, kDoneState, kErrorState } _state;
 	enum { kLeftButton, kRightButtonOnce, kRightButton, kMoveOnly } _buttonState;
-	enum { kControlMouse, kEscapeKey, kGameMenu, kShowKeypad, kSetVolume } _shortcut;
+	enum { kControlMouse, kEscapeKey, kGameMenu, kShowKeypad } _shortcut;
 };
 
 #endif

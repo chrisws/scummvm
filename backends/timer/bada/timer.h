@@ -53,7 +53,7 @@ public:
 	void removeTimerProc(TimerProc proc);
 
 private:
-	Common::List<TimerSlot*> _timers;
+	Common::List<TimerSlot *> _timers;
 };
 
 #endif

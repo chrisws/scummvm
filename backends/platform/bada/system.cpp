@@ -198,7 +198,6 @@ void BadaEventManager::init() {
 	BadaGraphicsManager *graphics = system->getGraphics();
 	if (graphics) {
 		graphics->setReady();
-		graphics->updateScreen();
 	}
 }
 
@@ -304,14 +303,13 @@ result BadaSystem::initModules() {
 void BadaSystem::initBackend() {
 	logEntered();
 
-	Common::String resourcePath = fromString(App::GetInstance()->GetAppResourcePath());
 	Common::String dataPath = fromString(App::GetInstance()->GetAppDataPath());
 
 	// use the mobile device theme
-	ConfMan.set("gui_theme", resourcePath + "scummmodern");
+	ConfMan.set("gui_theme", _resourcePath + "scummmodern");
 
 	// allow bada virtual keypad pack to be found
-	ConfMan.set("vkeybdpath", resourcePath + "vkeybd_bada");
+	ConfMan.set("vkeybdpath", _resourcePath + "vkeybd_bada");
 	ConfMan.set("vkeybd_pack_name", "vkeybd_bada");
 
 	// set default save path to writable area
@@ -339,7 +337,7 @@ void BadaSystem::initBackend() {
 		Common::String fontCacheFile = dataPath + "helvR24.fcc";
 		BadaFilesystemNode file(fontCacheFile);
 		if (!file.exists()) {
-			Common::String bdfFile = resourcePath + "fonts/helvR24.bdf";
+			Common::String bdfFile = _resourcePath + "fonts/helvR24.bdf";
 			BadaFilesystemNode file(bdfFile);
 			if (file.exists()) {
 				Common::SeekableReadStream *stream = file.createReadStream();

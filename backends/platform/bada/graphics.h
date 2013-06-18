@@ -42,6 +42,7 @@ using namespace Tizen::App;
 class BadaGraphicsManager : public OpenGLGraphicsManager {
 public:
 	BadaGraphicsManager(BadaAppForm *appForm);
+	virtual ~BadaGraphicsManager();
 
 	Common::List<Graphics::PixelFormat> getSupportedFormats() const;
 	bool hasFeature(OSystem::Feature f);

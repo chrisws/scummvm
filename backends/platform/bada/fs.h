@@ -85,7 +85,6 @@ public:
 
 protected:
 	BadaFilesystemNode(const Common::String &root, const Common::String &p);
-
 	void init(const Common::String &nodePath);
 
 	Common::String _displayName;

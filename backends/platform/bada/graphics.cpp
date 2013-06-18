@@ -40,6 +40,17 @@ BadaGraphicsManager::BadaGraphicsManager(BadaAppForm *appForm) :
 	_videoMode.fullscreen = true;
 }
 
+BadaGraphicsManager::~BadaGraphicsManager() {
+	logEntered();
+
+	if (_eglDisplay != EGL_NO_DISPLAY) {
+		eglMakeCurrent(_eglDisplay, NULL, NULL, NULL);
+		if (_eglContext != EGL_NO_CONTEXT) {
+			eglDestroyContext(_eglDisplay, _eglContext);
+		}
+	}
+}
+
 const Graphics::Font *BadaGraphicsManager::getFontOSD() {
 	return FontMan.getFontByUsage(Graphics::FontManager::kBigGUIFont);
 }

@@ -21,8 +21,8 @@
 
 #include "config.h"
 #include "common/translation.h"
-#include "backends/platform/bada/system.h"
-#include "backends/platform/bada/fs.h"
+#include "backends/platform/tizen/system.h"
+#include "backends/platform/tizen/fs.h"
 
 #include <FAppApp.h>
 
@@ -41,17 +41,17 @@ Common::String fromString(const Tizen::Base::String &in) {
 }
 
 //
-// BadaFileStream
+// TizenFileStream
 //
-class BadaFileStream :
+class TizenFileStream :
 	public Common::SeekableReadStream,
 	public Common::WriteStream,
 	public Common::NonCopyable {
 public:
-	static BadaFileStream *makeFromPath(const String &path, bool writeMode);
+	static TizenFileStream *makeFromPath(const String &path, bool writeMode);
 
-	BadaFileStream(File *file, bool writeMode);
-	~BadaFileStream();
+	TizenFileStream(File *file, bool writeMode);
+	~TizenFileStream();
 
 	bool err() const;
 	void clearErr();
@@ -73,7 +73,7 @@ private:
 	File *_file;
 };
 
-BadaFileStream::BadaFileStream(File *ioFile, bool writeMode) :
+TizenFileStream::TizenFileStream(File *ioFile, bool writeMode) :
 	_bufferIndex(0),
 	_bufferLength(0),
 	_writeMode(writeMode),
@@ -81,7 +81,7 @@ BadaFileStream::BadaFileStream(File *ioFile, bool writeMode) :
 	AppAssert(ioFile != 0);
 }
 
-BadaFileStream::~BadaFileStream() {
+TizenFileStream::~TizenFileStream() {
 	if (_file) {
 		if (_writeMode) {
 			flush();
@@ -90,24 +90,24 @@ BadaFileStream::~BadaFileStream() {
 	}
 }
 
-bool BadaFileStream::err() const {
+bool TizenFileStream::err() const {
 	result r = GetLastResult();
 	return (r != E_SUCCESS && r != E_END_OF_FILE);
 }
 
-void BadaFileStream::clearErr() {
+void TizenFileStream::clearErr() {
 	SetLastResult(E_SUCCESS);
 }
 
-bool BadaFileStream::eos() const {
+bool TizenFileStream::eos() const {
 	return (_bufferLength - _bufferIndex == 0) && (GetLastResult() == E_END_OF_FILE);
 }
 
-int32 BadaFileStream::pos() const {
+int32 TizenFileStream::pos() const {
 	return _file->Tell() - (_bufferLength - _bufferIndex);
 }
 
-int32 BadaFileStream::size() const {
+int32 TizenFileStream::size() const {
 	int32 oldPos = _file->Tell();
 	_file->Seek(FILESEEKPOSITION_END, 0);
 
@@ -117,7 +117,7 @@ int32 BadaFileStream::size() const {
 	return length;
 }
 
-bool BadaFileStream::seek(int32 offs, int whence) {
+bool TizenFileStream::seek(int32 offs, int whence) {
 	bool result = false;
 	switch (whence) {
 	case SEEK_SET:
@@ -167,7 +167,7 @@ bool BadaFileStream::seek(int32 offs, int whence) {
 	return result;
 }
 
-uint32 BadaFileStream::read(void *ptr, uint32 len) {
+uint32 TizenFileStream::read(void *ptr, uint32 len) {
 	uint32 result = 0;
 	if (!eos()) {
 		if (_bufferIndex < _bufferLength) {
@@ -210,19 +210,19 @@ uint32 BadaFileStream::read(void *ptr, uint32 len) {
 	return result;
 }
 
-uint32 BadaFileStream::write(const void *ptr, uint32 len) {
+uint32 TizenFileStream::write(const void *ptr, uint32 len) {
 	result r = _file->Write(ptr, len);
 	SetLastResult(r);
 	return (r == E_SUCCESS ? len : 0);
 }
 
-bool BadaFileStream::flush() {
+bool TizenFileStream::flush() {
 	logEntered();
 	SetLastResult(_file->Flush());
 	return (E_SUCCESS == GetLastResult());
 }
 
-BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode) {
+TizenFileStream *TizenFileStream::makeFromPath(const String &path, bool writeMode) {
 	File *ioFile = new File();
 
 	String filePath = path;
@@ -231,10 +231,10 @@ BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode)
 	}
 
 	AppLog("Open file %S", filePath.GetPointer());
-	BadaFileStream *stream;
+	TizenFileStream *stream;
 	result r = ioFile->Construct(filePath, writeMode ? L"w" : L"r", writeMode);
 	if (r == E_SUCCESS) {
-		stream = new BadaFileStream(ioFile, writeMode);
+		stream = new TizenFileStream(ioFile, writeMode);
 	} else {
 		AppLog("Failed to open file");
 		delete ioFile;
@@ -244,14 +244,14 @@ BadaFileStream *BadaFileStream::makeFromPath(const String &path, bool writeMode)
 }
 
 //
-// BadaFilesystemNode
+// TizenFilesystemNode
 //
-BadaFilesystemNode::BadaFilesystemNode(const Common::String &nodePath) {
+TizenFilesystemNode::TizenFilesystemNode(const Common::String &nodePath) {
 	AppAssert(nodePath.size() > 0);
 	init(nodePath);
 }
 
-BadaFilesystemNode::BadaFilesystemNode(SystemPath systemPath) {
+TizenFilesystemNode::TizenFilesystemNode(SystemPath systemPath) {
 	switch (systemPath) {
 	case kData:
 		_unicodePath = App::GetInstance()->GetAppDataPath();
@@ -278,8 +278,8 @@ BadaFilesystemNode::BadaFilesystemNode(SystemPath systemPath) {
 	_isValid = _isVirtualDir = !IsFailed(File::GetAttributes(_unicodePath, _attr));
 }
 
-BadaFilesystemNode::BadaFilesystemNode(const Common::String &root, const Common::String &nodePath) {
-	AppLog("BadaFilesystemNode '%s' '%s'", root.c_str(), nodePath.c_str());
+TizenFilesystemNode::TizenFilesystemNode(const Common::String &root, const Common::String &nodePath) {
+	AppLog("TizenFilesystemNode '%s' '%s'", root.c_str(), nodePath.c_str());
 
 	// Make sure the string contains no slashes
 	AppAssert(!nodePath.contains('/'));
@@ -295,7 +295,7 @@ BadaFilesystemNode::BadaFilesystemNode(const Common::String &root, const Common:
 	init(newPath);
 }
 
-void BadaFilesystemNode::init(const Common::String &nodePath) {
+void TizenFilesystemNode::init(const Common::String &nodePath) {
 	// Normalize the path (that is, remove unneeded slashes etc.)
 	_path = Common::normalizePath(nodePath, '/');
 	_displayName = Common::lastPathComponent(_path, '/');
@@ -305,19 +305,19 @@ void BadaFilesystemNode::init(const Common::String &nodePath) {
 	_isValid = _isVirtualDir || !IsFailed(File::GetAttributes(_unicodePath, _attr));
 }
 
-bool BadaFilesystemNode::exists() const {
+bool TizenFilesystemNode::exists() const {
 	return _isValid;
 }
 
-bool BadaFilesystemNode::isReadable() const {
+bool TizenFilesystemNode::isReadable() const {
 	return _isVirtualDir || _isValid;
 }
 
-bool BadaFilesystemNode::isDirectory() const {
+bool TizenFilesystemNode::isDirectory() const {
 	return _isVirtualDir || (_isValid && _attr.IsDirectory());
 }
 
-bool BadaFilesystemNode::isWritable() const {
+bool TizenFilesystemNode::isWritable() const {
 	bool result = (_isValid && !_attr.IsReadOnly());
 	if (_unicodePath == App::GetInstance()->GetAppResourcePath()) {
 		result = false;
@@ -325,24 +325,24 @@ bool BadaFilesystemNode::isWritable() const {
 	return result;
 }
 
-AbstractFSNode *BadaFilesystemNode::getChild(const Common::String &n) const {
+AbstractFSNode *TizenFilesystemNode::getChild(const Common::String &n) const {
 	AppAssert(!_path.empty());
 	AppAssert(isDirectory());
-	return new BadaFilesystemNode(_path, n);
+	return new TizenFilesystemNode(_path, n);
 }
 
-bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool hidden) const {
+bool TizenFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool hidden) const {
 	AppAssert(isDirectory());
 
 	bool result = false;
 
 	if (_isVirtualDir && mode != Common::FSNode::kListFilesOnly && _path == "/") {
-		// present well known BADA file system areas
-		myList.push_back(new BadaFilesystemNode(kData));
-		myList.push_back(new BadaFilesystemNode(kResource));
-		myList.push_back(new BadaFilesystemNode(kSdCard));
-		myList.push_back(new BadaFilesystemNode(kMedia));
-		myList.push_back(new BadaFilesystemNode(kShared));
+		// present well known TIZEN file system areas
+		myList.push_back(new TizenFilesystemNode(kData));
+		myList.push_back(new TizenFilesystemNode(kResource));
+		myList.push_back(new TizenFilesystemNode(kSdCard));
+		myList.push_back(new TizenFilesystemNode(kMedia));
+		myList.push_back(new TizenFilesystemNode(kShared));
 	}
 
 	if (!result) {
@@ -380,7 +380,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 						(mode == Common::FSNode::kListDirectoriesOnly && !dirEntry.IsDirectory())) {
 					continue;
 				}
-				myList.push_back(new BadaFilesystemNode(_path, ::fromString(fileName)));
+				myList.push_back(new TizenFilesystemNode(_path, ::fromString(fileName)));
 			}
 		}
 
@@ -398,7 +398,7 @@ bool BadaFilesystemNode::getChildren(AbstractFSList &myList, ListMode mode, bool
 	return result;
 }
 
-AbstractFSNode *BadaFilesystemNode::getParent() const {
+AbstractFSNode *TizenFilesystemNode::getParent() const {
   logEntered();
 	if (_path == "/") {
 		return 0; // The filesystem root has no parent
@@ -421,19 +421,19 @@ AbstractFSNode *BadaFilesystemNode::getParent() const {
 		return NULL;
 	}
 
-	return new BadaFilesystemNode(Common::String(start, end));
+	return new TizenFilesystemNode(Common::String(start, end));
 }
 
-Common::SeekableReadStream *BadaFilesystemNode::createReadStream() {
-	Common::SeekableReadStream *result = BadaFileStream::makeFromPath(_unicodePath, false);
+Common::SeekableReadStream *TizenFilesystemNode::createReadStream() {
+	Common::SeekableReadStream *result = TizenFileStream::makeFromPath(_unicodePath, false);
 	if (result != NULL) {
 		_isValid = !IsFailed(File::GetAttributes(_unicodePath, _attr));
 	}
 	return result;
 }
 
-Common::WriteStream *BadaFilesystemNode::createWriteStream() {
-	Common::WriteStream *result = BadaFileStream::makeFromPath(_unicodePath, true);
+Common::WriteStream *TizenFilesystemNode::createWriteStream() {
+	Common::WriteStream *result = TizenFileStream::makeFromPath(_unicodePath, true);
 	if (result != NULL) {
 		_isValid = !IsFailed(File::GetAttributes(_unicodePath, _attr));
 	}

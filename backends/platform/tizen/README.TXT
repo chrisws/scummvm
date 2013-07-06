@@ -40,7 +40,9 @@ export CFLAGS=${CPPFLAGS}
 
  Note: you can ignore the ranlib errors when doing make install.
 
- 3.3 Linker ordering: scummvm, theoradec, vorbis, vorbisfile, mad, FLAC, ogg, z
+ Modify the resulting ~/tizen-lib/bin/freetype-config file to include -lz when printing libs
+
+ 3.3 Linker ordering: scummvm, freetype, theoradec, vorbis, vorbisfile, mad, FLAC, ogg, z
 
 4. Build the ScummVM base library:
 

@@ -1373,9 +1373,9 @@ samsungtv)
 	_host_alias=arm-linux-gnueabi
 	;;
 tizen)
-  _host_os=tizen
-  _host_cpu=arm
-  _host_alias=arm-linux-gnueabi
+ 	_host_os=tizen
+	_host_cpu=arm
+	_host_alias=arm-linux-gnueabi
 	;;
 webos)
 	_host_os=webos
@@ -2225,7 +2225,7 @@ case $_host_os in
 		;;
 	tizen)
 		add_line_to_config_mk "TIZEN_ROOTSTRAP = $TIZEN_ROOTSTRAP"
-    LDFLAGS="$LDFLAGS --sysroot=${TIZEN_ROOTSTRAP}"
+		LDFLAGS="$LDFLAGS --sysroot=${TIZEN_ROOTSTRAP}"
 		LDFLAGS="$LDFLAGS -L${TIZEN_LIBS}/lib"
 		CXXFLAGS="$CXXFLAGS -I${TIZEN_LIBS}/include"
 		;;
@@ -2622,8 +2622,8 @@ if test -n "$_host"; then
 		tizen)
 			_unix=yes
 			_backend="tizen"
-			_port_mk="backends/platform/bada/bada.mk"
-		  _arm_asm=yes
+			_port_mk="backends/platform/tizen/tizen.mk"
+			_arm_asm=yes
 			_taskbar=no
 			_build_scalers=no
 			_seq_midi=no
@@ -2768,17 +2768,17 @@ case $_backend in
 		DEFINES="$DEFINES -DTIZEN -DDISABLE_STDIO_FILESTREAM -DNONSTANDARD_PORT"
 		DEFINES="$DEFINES -DNO_STDERR_STDOUT"
 		DEFINES="$DEFINES -DDISABLE_COMMAND_LINE"
-		INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/bada'
+		INCLUDES="$INCLUDES "'-I$(srcdir)/backends/platform/tizen'
 		INCLUDES="$INCLUDES "'-I$(TIZEN_ROOTSTRAP)/usr/include'
 		INCLUDES="$INCLUDES "'-I$(TIZEN_ROOTSTRAP)/usr/include/osp'
 		if test "$_debug_build" = yes; then
 			CXXFLAGS="$CXXFLAGS -D_DEBUG -DBUILD_DLL -O0 -g3"
-    fi
+		fi
 		# created a shared library for inclusion via the eclipse build
 		CXXFLAGS="$CXXFLAGS -Wno-psabi"
-    CXXFLAGS="$CXXFLAGS --sysroot=${TIZEN_ROOTSTRAP}"
-    CXXFLAGS="$CXXFLAGS -fmessage-length=0"
-    CXXFLAGS="$CXXFLAGS -fPIC"
+		CXXFLAGS="$CXXFLAGS --sysroot=${TIZEN_ROOTSTRAP}"
+		CXXFLAGS="$CXXFLAGS -fmessage-length=0"
+		CXXFLAGS="$CXXFLAGS -fPIC"
 		HOSTEXEPRE=lib
 		HOSTEXEEXT=.a
 		;;
@@ -2893,7 +2893,7 @@ case $_host_os in
 	amigaos* | cygwin* | dreamcast | ds | gamecube | mingw* | n64 | ps2 | ps3 | psp | wii | wince)
 		_posix=no
 		;;
-	android | beos* | bsd* | darwin* | freebsd* | gph-linux | haiku* | hpux* | iphone | irix* | linux* | maemo | mint* | netbsd* | openbsd* | solaris* | sunos* | uclinux* | webos)
+	android | beos* | bsd* | darwin* | freebsd* | gnu* | gph-linux | haiku* | hpux* | iphone | irix*| k*bsd*-gnu* | linux* | maemo | mint* | netbsd* | openbsd* | solaris* | sunos* | uclinux* | webos)
 		_posix=yes
 		;;
 	os2-emx*)

@@ -22,14 +22,14 @@
 
 #include "graphics/fontman.h"
 
-#include "backends/platform/bada/form.h"
-#include "backends/platform/bada/system.h"
-#include "backends/platform/bada/graphics.h"
+#include "backends/platform/tizen/form.h"
+#include "backends/platform/tizen/system.h"
+#include "backends/platform/tizen/graphics.h"
 
 //
-// BadaGraphicsManager
+// TizenGraphicsManager
 //
-BadaGraphicsManager::BadaGraphicsManager(BadaAppForm *appForm) :
+TizenGraphicsManager::TizenGraphicsManager(TizenAppForm *appForm) :
 	_appForm(appForm),
 	_eglDisplay(EGL_DEFAULT_DISPLAY),
 	_eglSurface(EGL_NO_SURFACE),
@@ -40,7 +40,7 @@ BadaGraphicsManager::BadaGraphicsManager(BadaAppForm *appForm) :
 	_videoMode.fullscreen = true;
 }
 
-BadaGraphicsManager::~BadaGraphicsManager() {
+TizenGraphicsManager::~TizenGraphicsManager() {
 	logEntered();
 
 	if (_eglDisplay != EGL_NO_DISPLAY) {
@@ -51,11 +51,11 @@ BadaGraphicsManager::~BadaGraphicsManager() {
 	}
 }
 
-const Graphics::Font *BadaGraphicsManager::getFontOSD() {
+const Graphics::Font *TizenGraphicsManager::getFontOSD() {
 	return FontMan.getFontByUsage(Graphics::FontManager::kBigGUIFont);
 }
 
-bool BadaGraphicsManager::moveMouse(int16 &x, int16 &y) {
+bool TizenGraphicsManager::moveMouse(int16 &x, int16 &y) {
 	int16 currentX = _cursorState.x;
 	int16 currentY = _cursorState.y;
 
@@ -73,7 +73,7 @@ bool BadaGraphicsManager::moveMouse(int16 &x, int16 &y) {
 	return (currentX != x || currentY != y);
 }
 
-Common::List<Graphics::PixelFormat> BadaGraphicsManager::getSupportedFormats() const {
+Common::List<Graphics::PixelFormat> TizenGraphicsManager::getSupportedFormats() const {
 	logEntered();
 
 	Common::List<Graphics::PixelFormat> res;
@@ -84,28 +84,32 @@ Common::List<Graphics::PixelFormat> BadaGraphicsManager::getSupportedFormats() c
 	return res;
 }
 
-bool BadaGraphicsManager::hasFeature(OSystem::Feature f) {
+bool TizenGraphicsManager::hasFeature(OSystem::Feature f) {
 	bool result = (f == OSystem::kFeatureFullscreenMode ||
 			f == OSystem::kFeatureVirtualKeyboard ||
 			OpenGLGraphicsManager::hasFeature(f));
 	return result;
 }
 
-void BadaGraphicsManager::setFeatureState(OSystem::Feature f, bool enable) {
-	OpenGLGraphicsManager::setFeatureState(f, enable);
+void TizenGraphicsManager::setFeatureState(OSystem::Feature f, bool enable) {
+	if (f == OSystem::kFeatureVirtualKeyboard && enable) {
+		_appForm->showKeypad();
+	} else {
+		OpenGLGraphicsManager::setFeatureState(f, enable);
+	}
 }
 
-void BadaGraphicsManager::setReady() {
+void TizenGraphicsManager::setReady() {
 	_initState = false;
 }
 
-void BadaGraphicsManager::updateScreen() {
+void TizenGraphicsManager::updateScreen() {
 	if (_transactionMode == kTransactionNone) {
 		internUpdateScreen();
 	}
 }
 
-bool BadaGraphicsManager::loadEgl() {
+bool TizenGraphicsManager::loadEgl() {
 	logEntered();
 
 	EGLint numConfigs = 1;
@@ -177,7 +181,7 @@ bool BadaGraphicsManager::loadEgl() {
 	return true;
 }
 
-bool BadaGraphicsManager::loadGFXMode() {
+bool TizenGraphicsManager::loadGFXMode() {
 	logEntered();
 
 	if (!loadEgl()) {
@@ -195,19 +199,19 @@ bool BadaGraphicsManager::loadGFXMode() {
 	return OpenGLGraphicsManager::loadGFXMode();
 }
 
-void BadaGraphicsManager::loadTextures() {
+void TizenGraphicsManager::loadTextures() {
 	logEntered();
 	OpenGLGraphicsManager::loadTextures();
 }
 
-void BadaGraphicsManager::internUpdateScreen() {
+void TizenGraphicsManager::internUpdateScreen() {
 	if (!_initState) {
 		OpenGLGraphicsManager::internUpdateScreen();
 		eglSwapBuffers(_eglDisplay, _eglSurface);
 	}
 }
 
-void BadaGraphicsManager::unloadGFXMode() {
+void TizenGraphicsManager::unloadGFXMode() {
 	logEntered();
 
 	if (_eglDisplay != EGL_NO_DISPLAY) {

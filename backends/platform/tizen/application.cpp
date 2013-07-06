@@ -22,52 +22,52 @@
 
 #include "engines/engine.h"
 
-#include "backends/platform/bada/form.h"
-#include "backends/platform/bada/system.h"
-#include "backends/platform/bada/application.h"
+#include "backends/platform/tizen/form.h"
+#include "backends/platform/tizen/system.h"
+#include "backends/platform/tizen/application.h"
 
-Application *BadaScummVM::createInstance() {
+Application *TizenScummVM::createInstance() {
 	logEntered();
-	return new BadaScummVM();
+	return new TizenScummVM();
 }
 
-BadaScummVM::BadaScummVM() : _appForm(0) {
+TizenScummVM::TizenScummVM() : _appForm(0) {
 	logEntered();
 }
 
-BadaScummVM::~BadaScummVM() {
+TizenScummVM::~TizenScummVM() {
 	logEntered();
 	if (g_system) {
-		BadaSystem *system = (BadaSystem *)g_system;
+		TizenSystem *system = (TizenSystem *)g_system;
 		system->destroyBackend();
 		delete system;
 		g_system = 0;
 	}
 }
 
-bool BadaScummVM::OnAppInitialized(void) {
+bool TizenScummVM::OnAppInitialized(void) {
 	logEntered();
 	_appForm->SetOrientation(Tizen::Ui::ORIENTATION_LANDSCAPE);
 	return true;
 }
 
-bool BadaScummVM::OnAppWillTerminate(void) {
+bool TizenScummVM::OnAppWillTerminate(void) {
 	logEntered();
 	return true;
 }
 
-bool BadaScummVM::OnAppInitializing(AppRegistry &appRegistry) {
+bool TizenScummVM::OnAppInitializing(AppRegistry &appRegistry) {
 	logEntered();
 	_appForm = systemStart(this);
 	return (_appForm != NULL);
 }
 
-bool BadaScummVM::OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination) {
+bool TizenScummVM::OnAppTerminating(AppRegistry &appRegistry, bool forcedTermination) {
 	logEntered();
 	return true;
 }
 
-void BadaScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
+void TizenScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
 	MessageBox messageBox;
 	int modalResult;
 
@@ -97,44 +97,44 @@ void BadaScummVM::OnUserEventReceivedN(RequestId requestId, IList *args) {
 	}
 }
 
-void BadaScummVM::OnForeground(void) {
+void TizenScummVM::OnForeground(void) {
 	logEntered();
 	pauseGame(false);
 }
 
-void BadaScummVM::OnBackground(void) {
+void TizenScummVM::OnBackground(void) {
 	logEntered();
 	pauseGame(true);
 }
 
-void BadaScummVM::OnBatteryLevelChanged(BatteryLevel batteryLevel) {
+void TizenScummVM::OnBatteryLevelChanged(BatteryLevel batteryLevel) {
 	logEntered();
 }
 
-void BadaScummVM::OnLowMemory(void) {
+void TizenScummVM::OnLowMemory(void) {
 	logEntered();
 }
 
-void BadaScummVM::OnScreenOn(void) {
+void TizenScummVM::OnScreenOn(void) {
 	logEntered();
 }
 
-void BadaScummVM::OnScreenOff(void) {
+void TizenScummVM::OnScreenOff(void) {
 	logEntered();
 }
 
-void BadaScummVM::OnScreenBrightnessChanged(int brightness) {
+void TizenScummVM::OnScreenBrightnessChanged(int brightness) {
 	logEntered();
 }
 
-void BadaScummVM::pauseGame(bool pause) {
+void TizenScummVM::pauseGame(bool pause) {
 	if (_appForm) {
 		if (pause && g_engine && !g_engine->isPaused()) {
 			_appForm->pushKey(Common::KEYCODE_SPACE);
 		}
 
 		if (g_system) {
-			((BadaSystem *)g_system)->setMute(pause);
+			((TizenSystem *)g_system)->setMute(pause);
 		}
 	}
 }

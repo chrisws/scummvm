@@ -26,8 +26,8 @@
 #include "common/translation.h"
 #include "base/main.h"
 
-#include "backends/platform/bada/form.h"
-#include "backends/platform/bada/system.h"
+#include "backends/platform/tizen/form.h"
+#include "backends/platform/tizen/system.h"
 
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Base::Runtime;
@@ -43,9 +43,9 @@ using namespace Tizen::Ui::Controls;
 #define EXIT_SLEEP 250
 
 //
-// BadaAppForm
+// TizenAppForm
 //
-BadaAppForm::BadaAppForm() :
+TizenAppForm::TizenAppForm() :
 	_gestureMode(false),
 	_osdMessage(NULL),
 	_gameThread(NULL),
@@ -55,15 +55,15 @@ BadaAppForm::BadaAppForm() :
 	_shortcut(kShowKeypad) {
 }
 
-result BadaAppForm::Construct() {
-	BadaSystem *badaSystem = NULL;
+result TizenAppForm::Construct() {
+	TizenSystem *tizenSystem = NULL;
 	result r = Form::Construct(FORM_STYLE_NORMAL);
 	if (!IsFailed(r)) {
-		badaSystem = new BadaSystem(this);
-		r = badaSystem != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
+		tizenSystem = new TizenSystem(this);
+		r = tizenSystem != NULL ? E_SUCCESS : E_OUT_OF_MEMORY;
 	}
 	if (!IsFailed(r)) {
-		r = badaSystem->Construct();
+		r = tizenSystem->Construct();
 	}
 	if (!IsFailed(r)) {
 		_gameThread = new Thread();
@@ -81,17 +81,17 @@ result BadaAppForm::Construct() {
 	}
 
 	if (!IsFailed(r)) {
-		g_system = badaSystem;
+		g_system = tizenSystem;
 	} else {
 		AppLog("Form startup failed");
-		delete badaSystem;
+		delete tizenSystem;
 		delete _gameThread;
 		_gameThread = NULL;
 	}
 	return r;
 }
 
-BadaAppForm::~BadaAppForm() {
+TizenAppForm::~TizenAppForm() {
 	logEntered();
 
 	if (_gameThread && _state != kErrorState) {
@@ -115,9 +115,9 @@ BadaAppForm::~BadaAppForm() {
 //
 // abort the game thread
 //
-void BadaAppForm::terminate() {
+void TizenAppForm::terminate() {
 	if (_state == kActiveState) {
-		((BadaSystem *)g_system)->setMute(true);
+		((TizenSystem *)g_system)->setMute(true);
 
 		_eventQueueLock->Acquire();
 
@@ -141,7 +141,7 @@ void BadaAppForm::terminate() {
 	}
 }
 
-void BadaAppForm::exitSystem() {
+void TizenAppForm::exitSystem() {
 	_state = kErrorState;
 
 	if (_gameThread) {
@@ -151,7 +151,7 @@ void BadaAppForm::exitSystem() {
 	}
 }
 
-result BadaAppForm::OnInitializing(void) {
+result TizenAppForm::OnInitializing(void) {
 	logEntered();
 
 	AddOrientationEventListener(*this);
@@ -166,12 +166,12 @@ result BadaAppForm::OnInitializing(void) {
 	return E_SUCCESS;
 }
 
-result BadaAppForm::OnDraw(void) {
+result TizenAppForm::OnDraw(void) {
 	logEntered();
 	return E_SUCCESS;
 }
 
-void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus orientationStatus) {
+void TizenAppForm::OnOrientationChanged(const Control &source, OrientationStatus orientationStatus) {
 	logEntered();
 	if (_state == kInitState) {
 		_state = kActiveState;
@@ -179,7 +179,7 @@ void BadaAppForm::OnOrientationChanged(const Control &source, OrientationStatus 
 	}
 }
 
-Tizen::Base::Object *BadaAppForm::Run() {
+Tizen::Base::Object *TizenAppForm::Run() {
 	logEntered();
 
 	scummvm_main(0, 0);
@@ -190,7 +190,7 @@ Tizen::Base::Object *BadaAppForm::Run() {
 	return NULL;
 }
 
-bool BadaAppForm::pollEvent(Common::Event &event) {
+bool TizenAppForm::pollEvent(Common::Event &event) {
 	bool result = false;
 
 	_eventQueueLock->Acquire();
@@ -199,8 +199,8 @@ bool BadaAppForm::pollEvent(Common::Event &event) {
 		result = true;
 	}
 	if (_osdMessage) {
-		BadaSystem *system = (BadaSystem *)g_system;
-		BadaGraphicsManager *graphics = system->getGraphics();
+		TizenSystem *system = (TizenSystem *)g_system;
+		TizenGraphicsManager *graphics = system->getGraphics();
 		if (graphics) {
 			graphics->displayMessageOnOSD(_osdMessage);
 			_osdMessage = NULL;
@@ -211,9 +211,9 @@ bool BadaAppForm::pollEvent(Common::Event &event) {
 	return result;
 }
 
-void BadaAppForm::pushEvent(Common::EventType type, const Point &currentPosition) {
-	BadaSystem *system = (BadaSystem *)g_system;
-	BadaGraphicsManager *graphics = system->getGraphics();
+void TizenAppForm::pushEvent(Common::EventType type, const Point &currentPosition) {
+	TizenSystem *system = (TizenSystem *)g_system;
+	TizenGraphicsManager *graphics = system->getGraphics();
 	if (graphics) {
 		// graphics could be NULL at startup or when
 		// displaying the system error screen
@@ -238,7 +238,7 @@ void BadaAppForm::pushEvent(Common::EventType type, const Point &currentPosition
 	}
 }
 
-void BadaAppForm::pushKey(Common::KeyCode keycode) {
+void TizenAppForm::pushKey(Common::KeyCode keycode) {
 	if (_eventQueueLock) {
 		Common::Event e;
 		e.synthetic = false;
@@ -255,7 +255,7 @@ void BadaAppForm::pushKey(Common::KeyCode keycode) {
 	}
 }
 
-void BadaAppForm::setButtonShortcut() {
+void TizenAppForm::setButtonShortcut() {
 	switch (_buttonState) {
 	case kLeftButton:
 		setMessage(_s("Right Click Once"));
@@ -276,7 +276,7 @@ void BadaAppForm::setButtonShortcut() {
 	}
 }
 
-void BadaAppForm::setMessage(const char *message) {
+void TizenAppForm::setMessage(const char *message) {
 	if (_eventQueueLock) {
 		_eventQueueLock->Acquire();
 		_osdMessage = message;
@@ -284,7 +284,7 @@ void BadaAppForm::setMessage(const char *message) {
 	}
 }
 
-void BadaAppForm::setShortcut() {
+void TizenAppForm::setShortcut() {
 	logEntered();
 	// cycle to the next shortcut
 	switch (_shortcut) {
@@ -310,7 +310,7 @@ void BadaAppForm::setShortcut() {
 	}
 }
 
-void BadaAppForm::invokeShortcut() {
+void TizenAppForm::invokeShortcut() {
 	logEntered();
 	switch (_shortcut) {
 	case kControlMouse:
@@ -329,16 +329,18 @@ void BadaAppForm::invokeShortcut() {
 	case kShowKeypad:
 		showKeypad();
 		break;
-  }
+	}
 }
 
-void BadaAppForm::showKeypad() {
+void TizenAppForm::showKeypad() {
 	// display the soft keyboard
-	_buttonState = kLeftButton;
-	pushKey(Common::KEYCODE_F7);
+	if (_state == kActiveState) {
+		_buttonState = kLeftButton;
+		pushKey(Common::KEYCODE_F7);
+	}
 }
 
-int BadaAppForm::getTouchCount() {
+int TizenAppForm::getTouchCount() {
 	Tizen::Ui::TouchEventManager *touch = Tizen::Ui::TouchEventManager::GetInstance();
 	IListT<TouchEventInfo *> *touchList = touch->GetTouchInfoListN();
 	int touchCount = touchList->GetCount();
@@ -347,7 +349,7 @@ int BadaAppForm::getTouchCount() {
 	return touchCount;
 }
 
-void BadaAppForm::OnTouchDoublePressed(const Control &source,
+void TizenAppForm::OnTouchDoublePressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	if (_buttonState != kMoveOnly) {
 		pushEvent(_buttonState == kLeftButton ? Common::EVENT_LBUTTONDOWN : Common::EVENT_RBUTTONDOWN,
@@ -357,15 +359,15 @@ void BadaAppForm::OnTouchDoublePressed(const Control &source,
 	}
 }
 
-void BadaAppForm::OnTouchFocusIn(const Control &source,
+void TizenAppForm::OnTouchFocusIn(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 }
 
-void BadaAppForm::OnTouchFocusOut(const Control &source,
+void TizenAppForm::OnTouchFocusOut(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 }
 
-void BadaAppForm::OnTouchLongPressed(const Control &source,
+void TizenAppForm::OnTouchLongPressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	logEntered();
 	if (_buttonState != kLeftButton) {
@@ -373,14 +375,14 @@ void BadaAppForm::OnTouchLongPressed(const Control &source,
 	}
 }
 
-void BadaAppForm::OnTouchMoved(const Control &source,
+void TizenAppForm::OnTouchMoved(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	if (!_gestureMode) {
 	  pushEvent(Common::EVENT_MOUSEMOVE, currentPosition);
 	}
 }
 
-void BadaAppForm::OnTouchPressed(const Control &source,
+void TizenAppForm::OnTouchPressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	if (getTouchCount() > 1) {
 		_gestureMode = true;
@@ -390,7 +392,7 @@ void BadaAppForm::OnTouchPressed(const Control &source,
 	}
 }
 
-void BadaAppForm::OnTouchReleased(const Control &source,
+void TizenAppForm::OnTouchReleased(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
 	if (_gestureMode) {
 		int touchCount = getTouchCount();

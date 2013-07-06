@@ -23,8 +23,8 @@
 #include <FSysSettingInfo.h>
 #include <FAppAppRegistry.h>
 
-#include "backends/platform/bada/audio.h"
-#include "backends/platform/bada/system.h"
+#include "backends/platform/tizen/audio.h"
+#include "backends/platform/tizen/system.h"
 
 #define TIMER_INTERVAL 10
 #define VOLUME 99
@@ -70,7 +70,7 @@ void AudioThread::setMute(bool on) {
 		if (on) {
 			_timer->Cancel();
 		} else {
-			_timer->Start(_interval);
+			_timer->StartAsRepeatable(_interval);
 		}
 	}
 }
@@ -111,7 +111,7 @@ bool AudioThread::OnStart(void) {
 		return false;
 	}
 
-	if (IsFailed(_timer->Start(_interval))) {
+	if (IsFailed(_timer->StartAsRepeatable(_interval))) {
 		AppLog("failed to start audio timer");
 		return false;
 	}
@@ -175,10 +175,7 @@ void AudioThread::OnTimerExpired(Timer &timer) {
 			_ready++;
 		}
 	}
-
 	if (_ready && _playing == -1) {
 		OnAudioOutBufferEndReached(*_audioOut);
 	}
-
-	_timer->Start(_interval);
 }

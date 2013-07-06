@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef BADA_APPLICATION_H
-#define BADA_APPLICATION_H
+#ifndef TIZEN_APPLICATION_H
+#define TIZEN_APPLICATION_H
 
 #include <FBase.h>
 #include <FApp.h>
@@ -29,8 +29,8 @@
 #include <FUi.h>
 #include <FSystem.h>
 
-#include "backends/platform/bada/system.h"
-#include "backends/platform/bada/form.h"
+#include "backends/platform/tizen/system.h"
+#include "backends/platform/tizen/form.h"
 
 using namespace Tizen::App;
 using namespace Tizen::System;
@@ -38,13 +38,13 @@ using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
-class BadaScummVM :
+class TizenScummVM :
 	public UiApp,
 	public IScreenEventListener {
 
 public:
-	BadaScummVM();
-	virtual ~BadaScummVM();
+	TizenScummVM();
+	virtual ~TizenScummVM();
 
 	static UiApp *createInstance(void);
 
@@ -63,7 +63,7 @@ public:
 
 private:
 	void pauseGame(bool pause);
-	BadaAppForm *_appForm;
+	TizenAppForm *_appForm;
 };
 
 #endif

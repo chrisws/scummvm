@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef BADA_FILESYSTEM_H
-#define BADA_FILESYSTEM_H
+#ifndef TIZEN_FILESYSTEM_H
+#define TIZEN_FILESYSTEM_H
 
 #include <FBaseString.h>
 #include <FBaseUtilStringUtil.h>
@@ -47,25 +47,25 @@ Common::String fromString(const Tizen::Base::String &in);
 enum SystemPath { kData, kResource, kSdCard, kMedia, kShared };
 
 /**
- * Implementation of the ScummVM file system API based on BADA.
+ * Implementation of the ScummVM file system API based on TIZEN.
  *
  * Parts of this class are documented in the base interface class, AbstractFSNode.
  */
-class BadaFilesystemNode : public AbstractFSNode {
+class TizenFilesystemNode : public AbstractFSNode {
 public:
 	/**
-	 * Creates a BadaFilesystemNode for a given path.
+	 * Creates a TizenFilesystemNode for a given path.
 	 *
 	 * @param path the path the new node should point to.
 	 */
-	BadaFilesystemNode(const Common::String &path);
+	TizenFilesystemNode(const Common::String &path);
 
 	/**
-	 * Creates a BadaFilesystemNode from the given Tizen internal path
+	 * Creates a TizenFilesystemNode from the given Tizen internal path
 	 *
 	 * @param path the path the new node should point to.
 	 */
-	BadaFilesystemNode(SystemPath systemPath);
+	TizenFilesystemNode(SystemPath systemPath);
 
 	Common::String getDisplayName() const { return _displayName; }
 	Common::String getName() const { return _displayName; }
@@ -84,7 +84,7 @@ public:
 	Common::WriteStream *createWriteStream();
 
 protected:
-	BadaFilesystemNode(const Common::String &root, const Common::String &p);
+	TizenFilesystemNode(const Common::String &root, const Common::String &p);
 	void init(const Common::String &nodePath);
 
 	Common::String _displayName;

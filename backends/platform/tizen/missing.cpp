@@ -26,7 +26,7 @@
 #include <FSystem.h>
 #include <FBase.h>
 
-#include "backends/platform/bada/portdefs.h"
+#include "backends/platform/tizen/portdefs.h"
 
 #include <stdio.h>
 #include <string.h>

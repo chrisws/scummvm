@@ -43,7 +43,7 @@
  #define C_LINKAGE_END
 #endif
 
-// TODO - guessed value missing from osp gl headers
+// value missing from osp gl headers
 #define GL_UNSIGNED_INT_8_8_8_8 0x8035
 
 C_LINKAGE_BEGIN
@@ -54,7 +54,7 @@ C_LINKAGE_BEGIN
 #define fseeko fseek
 #define ftello ftell
 
-// overcome use of fprintf since bada/newlib (1.2) does not
+// overcome use of fprintf since newlib (1.2) does not
 // support stderr/stdout (undefined reference to `_impure_ptr').
 
 void stderr_fprintf(void *, const char *format, ...);

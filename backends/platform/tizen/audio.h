@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef BADA_AUDIO_H
-#define BADA_AUDIO_H
+#ifndef TIZEN_AUDIO_H
+#define TIZEN_AUDIO_H
 
 #include <FBase.h>
 #include <FMedia.h>

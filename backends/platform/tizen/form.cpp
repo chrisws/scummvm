@@ -157,6 +157,8 @@ result TizenAppForm::OnInitializing(void) {
 	AddOrientationEventListener(*this);
 	AddTouchEventListener(*this);
 	SetMultipointTouchEnabled(true);
+	SetFormBackEventListener(this);
+	SetFormMenuEventListener(this);
 
 	// set focus to enable receiving key events
 	SetEnabled(true);
@@ -289,16 +291,6 @@ void TizenAppForm::setShortcut() {
 	// cycle to the next shortcut
 	switch (_shortcut) {
 	case kControlMouse:
-		setMessage(_s("Escape Key"));
-		_shortcut = kEscapeKey;
-		break;
-
-	case kEscapeKey:
-		setMessage(_s("Game Menu"));
-		_shortcut = kGameMenu;
-		break;
-
-	case kGameMenu:
 		setMessage(_s("Show Keypad"));
 		_shortcut = kShowKeypad;
 		break;
@@ -315,15 +307,6 @@ void TizenAppForm::invokeShortcut() {
 	switch (_shortcut) {
 	case kControlMouse:
 		setButtonShortcut();
-		break;
-		
-	case kEscapeKey:
-		pushKey(Common::KEYCODE_ESCAPE);
-		break;
-		
-	case kGameMenu:
-		_buttonState = kLeftButton;
-		pushKey(Common::KEYCODE_F5);
 		break;
 		
 	case kShowKeypad:
@@ -417,3 +400,17 @@ void TizenAppForm::OnTouchReleased(const Control &source,
 	}
 }
 
+void TizenAppForm::OnFormBackRequested(Form &source) {
+	logEntered();
+	if (_state == kActiveState) {
+		pushKey(Common::KEYCODE_ESCAPE);
+	}
+}
+
+void TizenAppForm::OnFormMenuRequested(Form &source) {
+	logEntered();
+	if (_state == kActiveState) {
+		_buttonState = kLeftButton;
+		pushKey(Common::KEYCODE_F5);
+	}
+}

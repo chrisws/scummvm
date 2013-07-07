@@ -100,6 +100,7 @@ void TizenGraphicsManager::setFeatureState(OSystem::Feature f, bool enable) {
 }
 
 void TizenGraphicsManager::setReady() {
+	_appForm->GetVisualElement()->SetShowState(true);
 	_initState = false;
 }
 

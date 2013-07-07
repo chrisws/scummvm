@@ -520,6 +520,8 @@ TizenAppForm *systemStart(Tizen::App::Application *app) {
 	}
 
 	appFrame->SetCurrentForm(appForm);
+	appForm->GetVisualElement()->SetShowState(false);
+
 	logLeaving();
 	return appForm;
 }

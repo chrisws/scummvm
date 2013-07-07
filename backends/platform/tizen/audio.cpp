@@ -29,7 +29,6 @@
 #define TIMER_INTERVAL		10
 #define VOLUME				96
 #define MIN_TIMER_INTERVAL	5
-//#define MAX_TIMER_INTERVAL	15
 
 AudioThread::AudioThread() :
 	_mixer(0),

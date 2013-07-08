@@ -334,9 +334,8 @@ int TizenAppForm::getTouchCount() {
 
 void TizenAppForm::OnTouchDoublePressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
+	logEntered();
 	if (_buttonState != kMoveOnly) {
-		pushEvent(_buttonState == kLeftButton ? Common::EVENT_LBUTTONDOWN : Common::EVENT_RBUTTONDOWN,
-							currentPosition);
 		pushEvent(_buttonState == kLeftButton ? Common::EVENT_LBUTTONDOWN : Common::EVENT_RBUTTONDOWN,
 							currentPosition);
 	}
@@ -367,6 +366,7 @@ void TizenAppForm::OnTouchMoved(const Control &source,
 
 void TizenAppForm::OnTouchPressed(const Control &source,
 		const Point &currentPosition, const TouchEventInfo &touchInfo) {
+	logEntered();
 	if (getTouchCount() > 1) {
 		_gestureMode = true;
 	} else if (_buttonState != kMoveOnly) {

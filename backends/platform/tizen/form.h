@@ -114,7 +114,7 @@ private:
 	Common::Queue<Common::Event> _eventQueue;
 	enum { kInitState, kActiveState, kClosingState, kDoneState, kErrorState } _state;
 	enum { kLeftButton, kRightButtonOnce, kRightButton, kMoveOnly } _buttonState;
-	enum { kControlMouse, kShowKeypad } _shortcut;
+	enum { kControlMouse, kEscapeKey, kGameMenu, kShowKeypad } _shortcut;
 };
 
 #endif

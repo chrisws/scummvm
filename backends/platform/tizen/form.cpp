@@ -52,7 +52,7 @@ TizenAppForm::TizenAppForm() :
 	_eventQueueLock(NULL),
 	_state(kInitState),
 	_buttonState(kLeftButton),
-	_shortcut(kShowKeypad) {
+	_shortcut(kEscapeKey) {
 }
 
 result TizenAppForm::Construct() {
@@ -291,6 +291,16 @@ void TizenAppForm::setShortcut() {
 	// cycle to the next shortcut
 	switch (_shortcut) {
 	case kControlMouse:
+		setMessage(_s("Escape Key"));
+		_shortcut = kEscapeKey;
+		break;
+
+	case kEscapeKey:
+		setMessage(_s("Game Menu"));
+		_shortcut = kGameMenu;
+		break;
+
+	case kGameMenu:
 		setMessage(_s("Show Keypad"));
 		_shortcut = kShowKeypad;
 		break;
@@ -307,6 +317,15 @@ void TizenAppForm::invokeShortcut() {
 	switch (_shortcut) {
 	case kControlMouse:
 		setButtonShortcut();
+		break;
+		
+	case kEscapeKey:
+		pushKey(Common::KEYCODE_ESCAPE);
+		break;
+		
+	case kGameMenu:
+		_buttonState = kLeftButton;
+		pushKey(Common::KEYCODE_F5);
 		break;
 		
 	case kShowKeypad:
@@ -401,14 +420,13 @@ void TizenAppForm::OnTouchReleased(const Control &source,
 void TizenAppForm::OnFormBackRequested(Form &source) {
 	logEntered();
 	if (_state == kActiveState) {
-		pushKey(Common::KEYCODE_ESCAPE);
+		invokeShortcut();
 	}
 }
 
 void TizenAppForm::OnFormMenuRequested(Form &source) {
 	logEntered();
 	if (_state == kActiveState) {
-		_buttonState = kLeftButton;
-		pushKey(Common::KEYCODE_F5);
+		setShortcut();
 	}
 }

@@ -533,7 +533,7 @@ void systemError(const char *message) {
 	AppLog("Fatal system error: %s", message);
 
 	if (strspn(message, "Config file buggy:") > 0) {
-		Tizen::Io::File::Remove(DEFAULT_CONFIG_FILE);
+		Tizen::Io::File::Remove(App::GetInstance()->GetAppDataPath() + DEFAULT_CONFIG_FILE);
 		Application::GetInstance()->SendUserEvent(USER_MESSAGE_EXIT_ERR_CONFIG, NULL);
 	} else {
 		ArrayList *args = new ArrayList();

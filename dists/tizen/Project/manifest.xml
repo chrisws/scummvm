@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Manifest xmlns="http://schemas.tizen.org/2012/12/manifest">
+    <Id>D5yaN4Z9ix</Id>
+    <Version>1.6.1</Version>
+    <Type>C++App</Type>
+    <Author>Chris Warren-Smith</Author>
+    <Requirements>
+        <Feature Name="http://tizen.org/feature/platform.core.cpu.arch.armv7">true</Feature>
+        <Feature Name="http://tizen.org/feature/platform.core.fpu.arch.vfpv3">true</Feature>
+        <Feature Name="http://tizen.org/feature/screen.size.normal">true</Feature>
+        <Feature Name="http://tizen.org/feature/screen.size.normal.720.1280">true</Feature>
+    </Requirements>
+    <Apps>
+        <ApiVersion>2.2</ApiVersion>
+        <Privileges/>
+        <UiApp LaunchingHistoryVisible="True" Main="True" MenuIconVisible="True" Name="ScummVM">
+            <UiScalability CoordinateSystem="Physical"/>
+            <UiTheme SystemTheme="Black"/>
+            <DisplayNames>
+                <DisplayName Locale="eng-GB">ScummVM</DisplayName>
+            </DisplayNames>
+            <Icons>
+                <Icon Section="MainMenu">mainmenu.png</Icon>
+            </Icons>
+            <LaunchConditions/>
+        </UiApp>
+    </Apps>
+</Manifest>

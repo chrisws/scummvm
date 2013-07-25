@@ -59,7 +59,7 @@
 				textalign = 'right'
 		/>
 		<widget name = 'SmallLabel'
-				size = '24, Globals.Line.Height'
+				size = '44, Globals.Line.Height'
 		/>
 
 		<widget name = 'Button'
@@ -375,7 +375,7 @@
 						type = 'Slider'
 				/>
 				<widget name = 'mcMidiGainLabel'
-						width = '32'
+						width = '44'
 						height = 'Globals.Line.Height'
 				/>
 			</layout>
@@ -769,7 +769,7 @@
 				<layout type = 'vertical' padding = '24, 24, 24, 24' center = 'true'>
 					<widget name = 'vcMuteCheckbox'
 							type = 'Checkbox'
-							width = '120'   <!-- FIXME: Why this is needed? -->
+							width = '140'   <!-- FIXME: Why this is needed? -->
 					/>
 				</layout>
 			</layout>
@@ -780,15 +780,15 @@
 				/>
 				<widget name = 'subToggleSpeechOnly'
 						type = 'Radiobutton'
-						width = '100'
+						width = '170'
 				/>
 				<widget name = 'subToggleSubOnly'
 						type = 'Radiobutton'
-						width = '100'
+						width = '170'
 				/>
 				<widget name = 'subToggleSubBoth'
 						type = 'Radiobutton'
-						width = '100'
+						width = '170'
 				/>
 			</layout>
 			<layout type = 'horizontal' padding = '0, 0, 0, 0' spacing = '10'>
@@ -1036,7 +1036,7 @@
 	<dialog name = 'ScummHelp' overlays = 'screen_center'>
 		<layout type = 'vertical' padding = '8, 8, 8, 8' center = 'true'>
 			<widget name = 'Title'
-					width = '320'
+					width = '520'
 					height = 'Globals.Line.Height'
 			/>
 			<widget name = 'HelpText'

@@ -44,8 +44,9 @@
 #endif
 
 #if defined(TIZEN)
-#include <FGraphicsOpengl.h>
-using namespace Tizen::Graphics::Opengl;
+#include <Evas_GL.h>
+#include <Evas_GL_GLES1_Helpers.h>
+EVAS_GL_GLOBAL_GLES1_DEFINE()
 #elif defined(USE_GLES)
 #include <GLES/gl.h>
 #elif defined(SDL_BACKEND)

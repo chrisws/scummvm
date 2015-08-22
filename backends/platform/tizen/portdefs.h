@@ -43,7 +43,9 @@
  #define C_LINKAGE_END
 #endif
 
-// value missing from osp gl headers
+#define FORBIDDEN_SYMBOL_ALLOW_ALL
+
+// value missing from Evas_GL.h
 #define GL_UNSIGNED_INT_8_8_8_8 0x8035
 
 C_LINKAGE_BEGIN

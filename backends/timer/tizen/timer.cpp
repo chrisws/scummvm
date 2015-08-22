@@ -23,6 +23,13 @@
 #if defined(TIZEN)
 
 #include "backends/timer/tizen/timer.h"
+#include "dlog/dlog.h"
+
+Eina_Bool timerCallback(void *data) {
+	TimerSlot *slot = (TimerSlot *)data;
+	slot->timerExpired();
+	return ECORE_CALLBACK_RENEW;
+}
 
 //
 // TimerSlot - an event driven thread
@@ -35,35 +42,22 @@ TimerSlot::TimerSlot(Common::TimerManager::TimerProc callback, uint32 interval, 
 }
 
 TimerSlot::~TimerSlot() {
-	delete _timer;
-}
-
-bool TimerSlot::OnStart() {
-	_timer = new Tizen::Base::Runtime::Timer();
-	if (!_timer || IsFailed(_timer->Construct(*this))) {
-		AppLog("Failed to create timer");
-		return false;
-	}
-
-	if (IsFailed(_timer->StartAsRepeatable(_interval))) {
-		AppLog("failed to start timer");
-		return false;
-	}
-
-	AppLog("started timer %d", _interval);
-	return true;
-}
-
-void TimerSlot::OnStop() {
-	AppLog("timer stopped");
 	if (_timer) {
-		_timer->Cancel();
-		delete _timer;
+		LOGD("timer stopped");
+		ecore_timer_del(_timer);
 		_timer = NULL;
 	}
 }
 
-void TimerSlot::OnTimerExpired(Timer &timer) {
+bool TimerSlot::start() {
+	_timer = ecore_timer_add(_interval, timerCallback, this);
+	if (_timer != NULL) {
+		LOGD("started timer %d", _interval);
+	}
+	return _timer != NULL;
+}
+
+void TimerSlot::timerExpired() {
 	_callback(_refCon);
 }
 
@@ -76,8 +70,6 @@ TizenTimerManager::TizenTimerManager() {
 TizenTimerManager::~TizenTimerManager() {
 	for (Common::List<TimerSlot *>::iterator it = _timers.begin(); it != _timers.end(); ) {
 		TimerSlot *slot = (*it);
-		slot->Quit();
-		slot->Join();
 		delete slot;
 		it = _timers.erase(it);
 	}
@@ -85,16 +77,9 @@ TizenTimerManager::~TizenTimerManager() {
 
 bool TizenTimerManager::installTimerProc(TimerProc proc, int32 interval, void *refCon, const Common::String &id) {
 	TimerSlot *slot = new TimerSlot(proc, interval / 1000, refCon);
-
-	if (IsFailed(slot->Construct())) {
-		AppLog("Failed to create timer thread");
+	if (!slot || !slot->start()) {
 		delete slot;
-		return false;
-	}
-
-	if (IsFailed(slot->Start())) {
-		delete slot;
-		AppLog("Failed to start timer thread");
+		LOGD("Failed to start timer thread");
 		return false;
 	}
 
@@ -106,8 +91,6 @@ void TizenTimerManager::removeTimerProc(TimerProc proc) {
 	for (Common::List<TimerSlot *>::iterator it = _timers.begin(); it != _timers.end(); ++it) {
 		TimerSlot *slot = (*it);
 		if (slot->_callback == proc) {
-			slot->Quit();
-			slot->Join();
 			delete slot;
 			it = _timers.erase(it);
 		}

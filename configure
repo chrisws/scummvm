@@ -3013,7 +3013,10 @@ case $_backend in
 		append_var DEFINES "-DDISABLE_COMMAND_LINE"
 		append_var INCLUDES '-I$(srcdir)/backends/platform/tizen'
 		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include'
-		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include/osp'
+		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include/ecore-1'
+		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include/evas-1'
+		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include/eina-1'
+		append_var INCLUDES '-I$(TIZEN_ROOTSTRAP)/usr/include/eina-1/eina'
 		if test "$_debug_build" = yes; then
 			append_var CXXFLAGS "-D_DEBUG -DBUILD_DLL -O0 -g3"
 		fi

@@ -23,22 +23,19 @@
 #ifndef TIZEN_TIMER_H
 #define TIZEN_TIMER_H
 
-#include <FBase.h>
+#include <Ecore.h>
 
 #include "common/timer.h"
 #include "common/list.h"
 
-using namespace Tizen::Base::Runtime;
-
-struct TimerSlot: public EventDrivenThread, public ITimerEventListener {
+struct TimerSlot {
 	TimerSlot(Common::TimerManager::TimerProc callback, uint32 interval, void *refCon);
 	~TimerSlot();
 
-	bool OnStart(void);
-	void OnStop(void);
-	void OnTimerExpired(Timer &timer);
+	bool start(void);
+	void timerExpired();
 
-	Timer *_timer;
+	Ecore_Timer *_timer;
 	Common::TimerManager::TimerProc _callback;
 	uint32 _interval;	// in microseconds
 	void *_refCon;
